@@ -90,7 +90,33 @@
   (modify ?h2 (rango $?c_ini $?c_fin))
   (printout t "Se activa regla 3" crlf))
 
-;;; Regla 4: de los números comunes (restricción 2 a 2 de 17 y 16)
+;;; Regla 4: eliminar los valores ya asignados en las filas
+(defrule eliminar-asignados-fila
+  ?h1 <- (restriccion (valor ?r_v) (casillas $?r_c_ini ?r_c $?r_c_fin))
+  ?h2 <- (celda (id ?c2_id&:(= ?c2_id ?r_c)) (fila ?c2_f) (columna ?c2_c) (rango $?c2_r_ini ?c2_r&:(<= ?c2_r ?r_v) $?c2_r_fin))
+  ?h3 <- (celda (id ?c3_id&~?c2_id) (fila ?c3_f&:(= ?c3_f ?c2_f)) (columna ?c3_c&~?c2_c) (rango $?c3_r_ini ?c3_r&:(= ?c3_r ?c2_r) $?c3_r_fin))
+  (test (and (= (length $?c2_r_ini) 0) (eq (length $?c2_r_fin) 0)))
+  (test (or (> (length $?c3_r_ini) 0) (> (length $?c3_r_fin) 0)))
+  (test (or (member ?c3_id $?r_c_ini) (member ?c3_id $?r_c_fin)))
+  =>
+  (modify ?h3 (rango $?c3_r_ini $?c3_r_fin))
+  (printout t "Se activa regla 4" crlf)
+)
+
+;;; Regla 5: eliminar los valores ya asignados en las columnas
+(defrule eliminar-asignados-columna
+  ?h1 <- (restriccion (valor ?r_v) (casillas $?r_c_ini ?r_c $?r_c_fin))
+  ?h2 <- (celda (id ?c2_id&:(= ?c2_id ?r_c)) (fila ?c2_f) (columna ?c2_c) (rango $?c2_r_ini ?c2_r&:(<= ?c2_r ?r_v) $?c2_r_fin))
+  ?h3 <- (celda (id ?c3_id&~?c2_id) (fila ?c3_f&~?c2_f) (columna ?c3_c&:(= ?c3_c ?c2_c)) (rango $?c3_r_ini ?c3_r&:(= ?c3_r ?c2_r) $?c3_r_fin))
+  (test (and (= (length $?c2_r_ini) 0) (eq (length $?c2_r_fin) 0)))
+  (test (or (> (length $?c3_r_ini) 0) (> (length $?c3_r_fin) 0)))
+  (test (or (member ?c3_id $?r_c_ini) (member ?c3_id $?r_c_fin)))
+  =>
+  (modify ?h3 (rango $?c3_r_ini $?c3_r_fin))
+  (printout t "Se activa regla 5" crlf)
+)
+
+;;; Regla 5: de los números comunes (restricción 2 a 2 de 17 y 16)
 (defrule restriccion-2-a-2-de-17-16
   (restriccion (valor ?r1_v&:(= ?r1_v 17)) (casillas $?r1_c_ini ?r1_c $?r1_c_fin))
   (restriccion (valor ?r2_v&:(= ?r2_v 16)) (casillas $?r2_c_ini ?r2_c $?r2_c_fin))
@@ -101,7 +127,7 @@
   (test (> (+ (+ (length $?h1_ini) (length $?h1_fin)) 1) 1))
   =>
   (modify ?h1 (rango 9))
-  (printout t "Se activa regla 4" crlf)
+  (printout t "Se activa regla 5" crlf)
 )
 
 ;(defrule restriccion-2-a-2-de-17-16-2
@@ -122,7 +148,7 @@
 ;  (printout t "Se activa regla 5" crlf)
 ;)
 
-;;; Regla 5: completa una restriccion de 2 casillas en el que una esté resuelta
+;;; Regla 6: completa una restriccion de 2 casillas en el que una esté resuelta
 (defrule completa-2
   (celda (id ?c_c) (rango ?c_v))
   (restriccion (valor ?r_v) (casillas $?r_c_ini ?r_c $?r_c_fin))
@@ -132,9 +158,72 @@
   (test (> (length $?h1_r) 1))
   =>
   (modify ?h1 (rango (- ?r_v ?c_v)))
-  (printout t "Se activa regla 6 " ?r_c crlf)
+  (printout t "Se activa regla 6" crlf)
 )
 
+;;; Pares ocultos
+
+;;; Regla 7:
+(defrule par-asignado-fila
+  ?h1 <- (celda (id ?c1_id) (fila ?c_f) (rango ?v1 ?v2))
+  ?h2 <- (celda (id ?c2_id) (fila ?c_f) (rango ?v1 ?v2))
+  (test (neq ?h1 ?h2))
+  (restriccion (casillas $?r_c))
+  (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
+  ?h3 <- (celda (id ?c3_id) (fila ?c_f) (rango $?ini ?v&?v1|?v2 $?fin))
+  (test (member ?c3_id $?r_c))
+  (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
+  =>
+  (modify ?h3 (rango $?ini $?fin))
+  (printout t "Se activa regla 7" crlf)
+)
+
+;;; Regla 8:
+(defrule par-asignado-columna
+  ?h1 <- (celda (id ?c1_id) (columna ?c_c) (rango ?v1 ?v2))
+  ?h2 <- (celda (id ?c2_id) (columna ?c_c) (rango ?v1 ?v2))
+  (test (neq ?h1 ?h2))
+  (restriccion (casillas $?r_c))
+  (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
+  ?h3 <- (celda (id ?c3_id) (columna ?c_c) (rango $?ini ?v&?v1|?v2 $?fin))
+  (test (member ?c3_id $?r_c))
+  (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
+  =>
+  (modify ?h3 (rango $?ini $?fin))
+  (printout t "Se activa regla 8" crlf)
+)
+
+;;; Trios ocultos
+
+;;; Regla 9:
+(defrule trio-asignado-fila
+  ?h1 <- (celda (id ?c1_id) (fila ?c_f) (rango ?v1 ?v2 ?v3))
+  ?h2 <- (celda (id ?c2_id) (fila ?c_f) (rango ?v1 ?v2 ?v3))
+  (test (neq ?h1 ?h2))
+  (restriccion (casillas $?r_c))
+  (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
+  ?h3 <- (celda (id ?c3_id) (fila ?c_f) (rango $?ini ?v&?v1|?v2|?v3 $?fin))
+  (test (member ?c3_id $?r_c))
+  (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
+  =>
+  (modify ?h3 (rango $?ini $?fin))
+  (printout t "Se activa regla 9" crlf)
+)
+
+;;; Regla 10:
+(defrule trio-asignado-columna
+  ?h1 <- (celda (id ?c1_id) (columna ?c_c) (rango ?v1 ?v2 ?v3))
+  ?h2 <- (celda (id ?c2_id) (columna ?c_c) (rango ?v1 ?v2 ?v3))
+  (test (neq ?h1 ?h2))
+  (restriccion (casillas $?r_c))
+  (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
+  ?h3 <- (celda (id ?c3_id) (columna ?c_c) (rango $?ini ?v&?v1|?v2|?v3 $?fin))
+  (test (member ?c3_id $?r_c))
+  (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
+  =>
+  (modify ?h3 (rango $?ini $?fin))
+  (printout t "Se activa regla 10" crlf)
+)
 
 ;;;============================================================================
 ;;; Reglas para imprimir el resultado
