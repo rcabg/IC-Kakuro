@@ -52,7 +52,7 @@
   (multislot casillas))
 
 ;;;============================================================================
-;;; Estrategias de resoluciÃ³n
+;;; Estrategias de resolución
 ;;;============================================================================
 
 ;;;   El objetivo del trabajo consiste en implementar un conjunto de reglas
@@ -64,6 +64,7 @@
 ;;; Eliminar los valores de las celdas mayores a los de las restricciones
 
 (defrule elimina-mayores-a-restricciones
+  (declare (salience 10))
   (restriccion (id ?) (valor ?r_v) (casillas $?r_ini ?r_c $?r_fin))
   ?h <- (celda (id ?r_c) (rango $?c_ini ?c_r&:(>= ?c_r ?r_v) $?c_fin))
   =>
@@ -84,11 +85,15 @@
 ;;; Regla 3
 ;;; Si es par y menor-igual que 18, no puede estar el valor/2 en ninguna casilla
 (defrule elimina-mitad-si-par-menor-igual-18
-  ?h1 <- (restriccion (valor ?r_v&:(and (eq (mod ?r_v 2) 0) (<= ?r_v 18))) (casillas ?c1 ?c2))
-  ?h2 <- (celda (id ?c_id&:(or (eq ?c_id ?c1) (eq ?c_id ?c2))) (rango $?c_ini ?c_r&:(eq ?c_r (div ?c_r 2)) $?c_fin))
+  (restriccion (valor ?r_v) (casillas ?r_c1 ?r_c2))
+  (test (and (= (mod ?r_v 2) 0) (<= ?r_v 18)))
+  ?h1 <- (celda (id ?r_c1) (rango $?c1_r_ini ?r_v&:(= (div ?r_v 2)) $?c1_r_fin))
+  ?h2 <- (celda (id ?r_c2) (rango $?c2_r_ini ?r_v&:(= (div ?r_v 2)) $?c2_r_fin))
   =>
-  (modify ?h2 (rango $?c_ini $?c_fin))
-  (printout t "Se activa regla 3" crlf))
+  (modify ?h1 (rango $?c1_r_ini $?c1_r_fin))
+  (modify ?h2 (rango $?c2_r_ini $?c2_r_fin))
+  (printout t "Elimina mitad si es par y <= 18" crlf)
+)
 
 ;;; Regla 4: eliminar los valores ya asignados en las filas
 (defrule eliminar-asignados-fila
@@ -262,7 +267,7 @@
   (restriccion (valor ?r_v) (casillas ?v1 ?v2))
   ?h1 <- (celda (id ?v1) (rango $?c1_ini ?c1_v))
   (test (> (+ (length $?c1_ini) 1) 1))
-  ?h2 <- (celda (id ?v2) (rango $?c2_ini ?c2_v))
+  ?h2 <- (celda (id ?v2) (rango $?c2_ini ?c2_v&~?c1_v))
   (test (> (+ (length $?c2_ini) 1) 1))
   (test (= (+ ?c1_v ?c2_v) ?r_v))
   =>
@@ -313,7 +318,7 @@
   (restriccion (valor ?r_v) (casillas ?v1 ?v2))
   ?h1 <- (celda (id ?v1) (rango ?c1_v $?c1_fin))
   (test (> (+ (length $?c1_fin) 1) 1))
-  ?h2 <- (celda (id ?v2) (rango ?c2_v $?c2_fin))
+  ?h2 <- (celda (id ?v2) (rango ?c2_v&~?c1_v $?c2_fin))
   (test (> (+ (length $?c2_fin) 1) 1))
   (test (= (+ ?c1_v ?c2_v) ?r_v))
   =>
@@ -327,9 +332,9 @@
   (restriccion (valor ?r_v) (casillas ?v1 ?v2 ?v3))
   ?h1 <- (celda (id ?v1) (rango ?c1_v $?c1_fin))
   (test (> (+ (length $?c1_fin) 1) 1))
-  ?h2 <- (celda (id ?v2) (rango ?c2_v $?c2_fin))
+  ?h2 <- (celda (id ?v2) (rango ?c2_v&~?c1_v $?c2_fin))
   (test (> (+ (length $?c2_fin) 1) 1))
-  ?h3 <- (celda (id ?v3) (rango ?c3_v $?c3_fin))
+  ?h3 <- (celda (id ?v3) (rango ?c3_v&~?c1_v&~?c2_v $?c3_fin))
   (test (> (+ (length $?c3_fin) 1) 1))
   (test (= (+ ?c1_v (+ ?c2_v ?c3_v)) ?r_v))
   =>
