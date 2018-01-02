@@ -64,61 +64,65 @@
 ;;; Eliminar los valores de las celdas mayores a los de las restricciones
 
 (defrule elimina-mayores-a-restricciones
-  (declare (salience 10))
+  (declare (salience 15))
   (restriccion (id ?) (valor ?r_v) (casillas $?r_ini ?r_c $?r_fin))
   ?h <- (celda (id ?r_c) (rango $?c_ini ?c_r&:(>= ?c_r ?r_v) $?c_fin))
   =>
   (modify ?h (rango $?c_ini $?c_fin))
-  (printout t "Se activa regla 1" crlf))
-
-
-;;; Si una casilla solo tiene una restricción y es menor-igual que 9
+  (printout t "Elimina valor imposible por restriccion" crlf))
 
 ;;; Regla 2
+;;; Si una casilla solo tiene una restricción y es menor-igual que 9
+
 (defrule casilla-unica
   ?h1 <- (restriccion (valor ?r_v&:(<= ?r_v 9)) (casillas ?r_c))
   ?h2 <- (celda (id ?r_c) (rango $?))
   =>
   (modify ?h2 (rango ?r_v))
-  (printout t "Se activa regla 2" crlf))
+  (printout t "Casilla con restriccion unica -> " ?r_c crlf))
 
 ;;; Regla 3
 ;;; Si es par y menor-igual que 18, no puede estar el valor/2 en ninguna casilla
 (defrule elimina-mitad-si-par-menor-igual-18
+  (declare (salience 10))
   (restriccion (valor ?r_v) (casillas ?r_c1 ?r_c2))
   (test (and (= (mod ?r_v 2) 0) (<= ?r_v 18)))
-  ?h1 <- (celda (id ?r_c1) (rango $?c1_r_ini ?r_v&:(= (div ?r_v 2)) $?c1_r_fin))
-  ?h2 <- (celda (id ?r_c2) (rango $?c2_r_ini ?r_v&:(= (div ?r_v 2)) $?c2_r_fin))
+  ?h1 <- (celda (id ?r_c1) (rango $?c1_r_ini ?c1_v $?c1_r_fin))
+  (test (= (/ ?r_v 2) ?c1_v))
+  ?h2 <- (celda (id ?r_c2) (rango $?c2_r_ini ?c2_v $?c2_r_fin))
+  (test (= (/ ?r_v 2) ?c2_v))
   =>
   (modify ?h1 (rango $?c1_r_ini $?c1_r_fin))
   (modify ?h2 (rango $?c2_r_ini $?c2_r_fin))
-  (printout t "Elimina mitad si es par y <= 18" crlf)
+  (printout t "Elimina mitad si es par y <= 18 (" ?r_v ") -> " ?r_c1 " , " ?r_c2 crlf)
 )
 
 ;;; Regla 4: eliminar los valores ya asignados en las filas
-(defrule eliminar-asignados-fila
-  ?h1 <- (restriccion (valor ?r_v) (casillas $?r_c_ini ?r_c $?r_c_fin))
-  ?h2 <- (celda (id ?c2_id&:(= ?c2_id ?r_c)) (fila ?c2_f) (columna ?c2_c) (rango $?c2_r_ini ?c2_r&:(<= ?c2_r ?r_v) $?c2_r_fin))
-  ?h3 <- (celda (id ?c3_id&~?c2_id) (fila ?c3_f&:(= ?c3_f ?c2_f)) (columna ?c3_c&~?c2_c) (rango $?c3_r_ini ?c3_r&:(= ?c3_r ?c2_r) $?c3_r_fin))
+(defrule elimina-asignados-fila
+  (declare (salience 10))
+  (restriccion (valor ?r_v) (casillas $?r_c_ini ?r_c $?r_c_fin))
+  (celda (id ?r_c) (fila ?c2_f) (columna ?c2_c) (rango $?c2_r_ini ?c2_r&:(<= ?c2_r ?r_v) $?c2_r_fin))
+  ?h3 <- (celda (id ?c3_id&~?r_c) (fila ?c2_f) (columna ?c3_c&~?c2_c) (rango $?c3_r_ini ?c2_r $?c3_r_fin))
   (test (and (= (length $?c2_r_ini) 0) (eq (length $?c2_r_fin) 0)))
   (test (or (> (length $?c3_r_ini) 0) (> (length $?c3_r_fin) 0)))
   (test (or (member ?c3_id $?r_c_ini) (member ?c3_id $?r_c_fin)))
   =>
   (modify ?h3 (rango $?c3_r_ini $?c3_r_fin))
-  (printout t "Se activa regla 4" crlf)
+  (printout t "Elimina valores ya asignados en fila -> " ?c3_id "(" ?c2_r ")" crlf)
 )
 
 ;;; Regla 5: eliminar los valores ya asignados en las columnas
-(defrule eliminar-asignados-columna
-  ?h1 <- (restriccion (valor ?r_v) (casillas $?r_c_ini ?r_c $?r_c_fin))
-  ?h2 <- (celda (id ?c2_id&:(= ?c2_id ?r_c)) (fila ?c2_f) (columna ?c2_c) (rango $?c2_r_ini ?c2_r&:(<= ?c2_r ?r_v) $?c2_r_fin))
-  ?h3 <- (celda (id ?c3_id&~?c2_id) (fila ?c3_f&~?c2_f) (columna ?c3_c&:(= ?c3_c ?c2_c)) (rango $?c3_r_ini ?c3_r&:(= ?c3_r ?c2_r) $?c3_r_fin))
+(defrule elimina-asignados-columna
+  (declare (salience 10))
+  (restriccion (valor ?r_v) (casillas $?r_c_ini ?r_c $?r_c_fin))
+  (celda (id ?r_c) (fila ?c2_f) (columna ?c2_c) (rango $?c2_r_ini ?c2_r&:(<= ?c2_r ?r_v) $?c2_r_fin))
+  ?h3 <- (celda (id ?c3_id&~?r_c) (fila ?c3_f&~?c2_f) (columna ?c2_c) (rango $?c3_r_ini ?c2_r $?c3_r_fin))
   (test (and (= (length $?c2_r_ini) 0) (eq (length $?c2_r_fin) 0)))
   (test (or (> (length $?c3_r_ini) 0) (> (length $?c3_r_fin) 0)))
   (test (or (member ?c3_id $?r_c_ini) (member ?c3_id $?r_c_fin)))
   =>
   (modify ?h3 (rango $?c3_r_ini $?c3_r_fin))
-  (printout t "Se activa regla 5" crlf)
+  (printout t "Elimina valores ya asignados en columna -> " ?c3_id "(" ?c2_r ")" crlf)
 )
 
 ;;; Regla 6: de los números comunes (restricción 2 a 2 de 17 y 16)
@@ -132,26 +136,8 @@
   (test (> (+ (+ (length $?h1_ini) (length $?h1_fin)) 1) 1))
   =>
   (modify ?h1 (rango 9))
-  (printout t "Se activa regla 6" crlf)
+  (printout t "Restriccion 2 a 2 de valor 17 y 16 -> " ?r1_c "(9)" crlf)
 )
-
-;(defrule restriccion-2-a-2-de-17-16-2
-;  (celda (id ?c_c) (rango ?c_v&:(= ?c_v 9)))
-;  (restriccion (valor ?r1_v&:(= ?r1_v 17)) (casillas $?r1_c_ini ?r1_c $?r1_c_fin))
-;  (test (= (+ (+ (length $?r1_c_ini) (length $?r1_c_fin)) 1) 2))
-;  (test (member ?c_c (create$ $?r1_c_ini ?r1_c $?r1_c_fin)))
-;  (restriccion (valor ?r2_v&:(= ?r2_v 16)) (casillas $?r2_c_ini ?r2_c $?r2_c_fin))
-;  (test (= (+ (+ (length $?r2_c_ini) (length $?r2_c_fin)) 1) 2))
-;  (test (member ?c_c (create$ $?r2_c_ini ?r2_c $?r2_c_fin)))
-;  ?h1 <- (celda (id ?r1_c&~?c_c) (rango $?h1_ini ?r1_c_v&:(eq ?r1_c_v 8) $?h1_fin))
-;  (test (> (+ (+ (length $?h1_ini) (length $?h1_fin)) 1) 1))
-;  ?h2 <- (celda (id ?r2_c&~?c_c) (rango $?h2_ini ?r2_c_v&:(eq ?r2_c_v 7) $?h2_fin))
-;  (test (> (+ (+ (length $?h2_ini) (length $?h2_fin)) 1) 1))
-;  =>
-;  (modify ?h1 (rango 8))
-;  (modify ?h2 (rango 7))
-;  (printout t "Se activa regla 5" crlf)
-;)
 
 ;;; Regla 7: completa una restriccion de 2 casillas en el que una esté resuelta
 (defrule completa-2
@@ -162,8 +148,9 @@
   ?h1 <- (celda (id ?r_c&~?c_c) (rango $?h1_r))
   (test (> (length $?h1_r) 1))
   =>
-  (modify ?h1 (rango (- ?r_v ?c_v)))
-  (printout t "Se activa regla 7" crlf)
+  (bind ?result (- ?r_v ?c_v))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 2c -> " ?r_c " con valor " ?result crlf)
 )
 
 ;;; Pares ocultos
@@ -180,7 +167,7 @@
   (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
   =>
   (modify ?h3 (rango $?ini $?fin))
-  (printout t "Se activa regla 8" crlf)
+  (printout t "Par oculto fila para valores (" ?v1 " " ?v2 ") en celda " ?c3_id " (quita " ?v ")" crlf)
 )
 
 ;;; Regla 9:
@@ -195,72 +182,72 @@
   (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
   =>
   (modify ?h3 (rango $?ini $?fin))
-  (printout t "Se activa regla 9" crlf)
+  (printout t "Par oculto columna para valores (" ?v1 " " ?v2 ") en celda " ?c3_id " (quita " ?v ")" crlf)
 )
 
 ;;; Trios ocultos
 
-;;; Regla 10:
-(defrule trio-asignado-fila
-  ?h1 <- (celda (id ?c1_id) (fila ?c_f) (rango ?v1 ?v2 ?v3))
-  ?h2 <- (celda (id ?c2_id) (fila ?c_f) (rango ?v1 ?v2 ?v3))
-  (test (neq ?h1 ?h2))
-  (restriccion (casillas $?r_c))
-  (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
-  ?h3 <- (celda (id ?c3_id) (fila ?c_f) (rango $?ini ?v&?v1|?v2|?v3 $?fin))
-  (test (member ?c3_id $?r_c))
-  (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
-  =>
-  (modify ?h3 (rango $?ini $?fin))
-  (printout t "Se activa regla 10" crlf)
-)
+; ;;; Regla 10:
+; (defrule trio-asignado-fila
+;   ?h1 <- (celda (id ?c1_id) (fila ?c_f) (rango ?v1 ?v2 ?v3))
+;   ?h2 <- (celda (id ?c2_id) (fila ?c_f) (rango ?v1 ?v2 ?v3))
+;   (test (neq ?h1 ?h2))
+;   (restriccion (casillas $?r_c))
+;   (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
+;   ?h3 <- (celda (id ?c3_id) (fila ?c_f) (rango $?ini ?v&?v1|?v2|?v3 $?fin))
+;   (test (member ?c3_id $?r_c))
+;   (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
+;   =>
+;   (modify ?h3 (rango $?ini $?fin))
+;   (printout t "Trio oculto fila para valores (" ?v1 " " ?v2 " " ?v3 ") en celda " ?c3_id " (quita " ?v ")" crlf)
+; )
 
-;;; Regla 11:
-(defrule trio-asignado-columna
-  ?h1 <- (celda (id ?c1_id) (columna ?c_c) (rango ?v1 ?v2 ?v3))
-  ?h2 <- (celda (id ?c2_id) (columna ?c_c) (rango ?v1 ?v2 ?v3))
-  (test (neq ?h1 ?h2))
-  (restriccion (casillas $?r_c))
-  (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
-  ?h3 <- (celda (id ?c3_id) (columna ?c_c) (rango $?ini ?v&?v1|?v2|?v3 $?fin))
-  (test (member ?c3_id $?r_c))
-  (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
-  =>
-  (modify ?h3 (rango $?ini $?fin))
-  (printout t "Se activa regla 11" crlf)
-)
+; ;;; Regla 11:
+; (defrule trio-asignado-columna
+;   ?h1 <- (celda (id ?c1_id) (columna ?c_c) (rango ?v1 ?v2 ?v3))
+;   ?h2 <- (celda (id ?c2_id) (columna ?c_c) (rango ?v1 ?v2 ?v3))
+;   (test (neq ?h1 ?h2))
+;   (restriccion (casillas $?r_c))
+;   (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
+;   ?h3 <- (celda (id ?c3_id) (columna ?c_c) (rango $?ini ?v&?v1|?v2|?v3 $?fin))
+;   (test (member ?c3_id $?r_c))
+;   (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
+;   =>
+;   (modify ?h3 (rango $?ini $?fin))
+;   (printout t "Trio oculto columna para valores (" ?v1 " " ?v2 " " ?v3 ") en celda " ?c3_id " (quita " ?v ")" crlf)
+; )
 
-;;; Cuadriples ocultos
-
-;;; Regla 12:
-(defrule cuadruple-asignado-fila
-  ?h1 <- (celda (id ?c1_id) (fila ?c_f) (rango ?v1 ?v2 ?v3 ?v4))
-  ?h2 <- (celda (id ?c2_id) (fila ?c_f) (rango ?v1 ?v2 ?v3 ?v4))
-  (test (neq ?h1 ?h2))
-  (restriccion (casillas $?r_c))
-  (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
-  ?h3 <- (celda (id ?c3_id) (fila ?c_f) (rango $?ini ?v&?v1|?v2|?v3|?v4 $?fin))
-  (test (member ?c3_id $?r_c))
-  (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
-  =>
-  (modify ?h3 (rango $?ini $?fin))
-  (printout t "Se activa regla 12" crlf)
-)
-
-;;; Regla 13:
-(defrule cuadruple-asignado-columna
-  ?h1 <- (celda (id ?c1_id) (columna ?c_c) (rango ?v1 ?v2 ?v3 ?v4))
-  ?h2 <- (celda (id ?c2_id) (columna ?c_c) (rango ?v1 ?v2 ?v3 ?v4))
-  (test (neq ?h1 ?h2))
-  (restriccion (casillas $?r_c))
-  (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
-  ?h3 <- (celda (id ?c3_id) (columna ?c_c) (rango $?ini ?v&?v1|?v2|?v3|?v4 $?fin))
-  (test (member ?c3_id $?r_c))
-  (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
-  =>
-  (modify ?h3 (rango $?ini $?fin))
-  (printout t "Se activa regla 13" crlf)
-)
+; ;;; Cuadriples ocultos
+;
+; ;;; Regla 12:
+; (defrule cuadruple-asignado-fila
+;   ?h1 <- (celda (id ?c1_id) (fila ?c_f) (rango ?v1 ?v2 ?v3 ?v4))
+;   ?h2 <- (celda (id ?c2_id) (fila ?c_f) (rango ?v1 ?v2 ?v3 ?v4))
+;   (test (neq ?h1 ?h2))
+;   (restriccion (casillas $?r_c))
+;   (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
+;   ?h3 <- (celda (id ?c3_id) (fila ?c_f) (rango $?ini ?v&?v1|?v2|?v3|?v4 $?fin))
+;   (test (member ?c3_id $?r_c))
+;   (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
+;   =>
+;   (modify ?h3 (rango $?ini $?fin))
+;   (printout t "Cuadruple oculto fila para valores (" ?v1 " " ?v2 " " ?v3 " " ?v4 ") en celda " ?c3_id " (quita " ?v ")" crlf)
+; )
+;
+; ;;; Regla 13:
+; (defrule cuadruple-asignado-columna
+;   ?h1 <- (celda (id ?c1_id) (columna ?c_c) (rango ?v1 ?v2 ?v3 ?v4))
+;   ?h2 <- (celda (id ?c2_id) (columna ?c_c) (rango ?v1 ?v2 ?v3 ?v4))
+;   (test (neq ?h1 ?h2))
+;   (restriccion (casillas $?r_c))
+;   (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
+;   ?h3 <- (celda (id ?c3_id) (columna ?c_c) (rango $?ini ?v&?v1|?v2|?v3|?v4 $?fin))
+;   (test (member ?c3_id $?r_c))
+;   (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
+;   =>
+;   (modify ?h3 (rango $?ini $?fin))
+;   (printout t "Cuadruple oculto columna para valores (" ?v1 " " ?v2 " " ?v3 " " ?v4 ") en celda " ?c3_id " (quita " ?v ")" crlf)
+; )
 
 ;;; Regla 14
 (defrule max-valores-2
@@ -273,7 +260,7 @@
   =>
   (modify ?h1 (rango ?c1_v))
   (modify ?h2 (rango ?c2_v))
-  (printout t "Se activa regla 14" crlf)
+  (printout t "Valores maximos 2c -> " ?v1 "(" ?c1_v "), " ?v2 "(" ?c2_v ")" crlf)
 )
 
 ;;; Regla 15
@@ -290,7 +277,7 @@
   (modify ?h1 (rango ?c1_v))
   (modify ?h2 (rango ?c2_v))
   (modify ?h3 (rango ?c3_v))
-  (printout t "Se activa regla 15" crlf)
+  (printout t "Valores maximos 3c -> " ?v1 "(" ?c1_v "), " ?v2 "(" ?c2_v "), " ?v3 "(" ?c3_v ")" crlf)
 )
 
 ;;; Regla 16
@@ -310,7 +297,7 @@
   (modify ?h2 (rango ?c2_v))
   (modify ?h3 (rango ?c3_v))
   (modify ?h3 (rango ?c4_v))
-  (printout t "Se activa regla 16" crlf)
+  (printout t "Valores maximos 4c -> " ?v1 "(" ?c1_v "), " ?v2 "(" ?c2_v "), " ?v3 "(" ?c3_v "), " ?v4 "(" ?c4_v ")"" crlf)
 )
 
 ;;; Regla 17
@@ -324,7 +311,7 @@
   =>
   (modify ?h1 (rango ?c1_v))
   (modify ?h2 (rango ?c2_v))
-  (printout t "Se activa regla 17" crlf)
+  (printout t "Valores minimos 2c -> " ?v1 "(" ?c1_v "), " ?v2 "(" ?c2_v ")" crlf)
 )
 
 ;;; Regla 18
@@ -341,7 +328,7 @@
   (modify ?h1 (rango ?c1_v))
   (modify ?h2 (rango ?c2_v))
   (modify ?h3 (rango ?c3_v))
-  (printout t "Se activa regla 18" crlf)
+  (printout t "Valores minimos 3c -> " ?v1 "(" ?c1_v "), " ?v2 "(" ?c2_v ")," ?v3 "(" ?c3_v ")" crlf)
 )
 
 ;;; Regla 19
@@ -361,7 +348,7 @@
   (modify ?h2 (rango ?c2_v))
   (modify ?h3 (rango ?c3_v))
   (modify ?h3 (rango ?c4_v))
-  (printout t "Se activa regla 19" crlf)
+  (printout t "Valores minimos 4c -> " ?v1 "(" ?c1_v "), " ?v2 "(" ?c2_v "), " ?v3 "(" ?c3_v "), " ?v4 "(" ?c4_v ")"" crlf)
 )
 
 ;;; Regla 20
@@ -373,8 +360,9 @@
   ?h1 <- (celda (id ?r4_c3) (rango $?c_r))
   (test (> (length $?c_r) 1))
   =>
-  (modify ?h1 (rango (abs (- (- (+ ?r1_v ?r2_v) ?r3_v) ?r4_v))))
-  (printout t "Se activa regla 20" crlf)
+  (bind ?result (abs (- (- (+ ?r1_v ?r2_v) ?r3_v) ?r4_v)))
+  (modify ?h1 (rango ?result))
+  (printout t "Detecta 2x2 con 1 extra -> " ?r4_c3 "(" ?result ")"  crlf)
 )
 
 ;;; Regla 21
@@ -386,8 +374,9 @@
   ?h1 <- (celda (id ?r4_c3) (rango $?c_r))
   (test (> (length $?c_r) 1))
   =>
-  (modify ?h1 (rango (abs (- (- (+ ?r1_v ?r2_v) ?r3_v) ?r4_v))))
-  (printout t "Se activa regla 21" crlf)
+  (bind ?result (abs (- (- (+ ?r1_v ?r2_v) ?r3_v) ?r4_v)))
+  (modify ?h1 (rango ?result))
+  (printout t "Detecta 2x2 con 1 extra -> " ?r4_c3 "(" ?result ")"  crlf)
 )
 
 ;;; Regla 22
@@ -399,8 +388,9 @@
   ?h1 <- (celda (id ?r4_c3) (rango $?c_r))
   (test (> (length $?c_r) 1))
   =>
-  (modify ?h1 (rango (abs (- (- (+ ?r1_v ?r2_v) ?r3_v) ?r4_v))))
-  (printout t "Se activa regla 22" crlf)
+  (bind ?result (abs (- (- (+ ?r1_v ?r2_v) ?r3_v) ?r4_v)))
+  (modify ?h1 (rango ?result))
+  (printout t "Detecta 2x2 con 1 extra -> " ?r4_c3 "(" ?result ")"  crlf)
 )
 
 ;;; Regla 23
@@ -412,8 +402,9 @@
   ?h1 <- (celda (id ?r4_c3) (rango $?c_r))
   (test (> (length $?c_r) 1))
   =>
-  (modify ?h1 (rango (abs (- (- (+ ?r1_v ?r2_v) ?r3_v) ?r4_v))))
-  (printout t "Se activa regla 23" crlf)
+  (bind ?result (abs (- (- (+ ?r1_v ?r2_v) ?r3_v) ?r4_v)))
+  (modify ?h1 (rango ?result))
+  (printout t "Detecta 2x2 con 1 extra -> " ?r4_c3 "(" ?result ")"  crlf)
 )
 
 ;;; Regla 24
@@ -424,8 +415,9 @@
   ?h1 <- (celda (id ?r_c3) (rango $?c_r3))
   (test (> (length $?c_r3) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ ?c_r1 ?c_r2))))
-  (printout t "Se activa regla 24" crlf)
+  (bind ?result (- ?r_v (+ ?c_r1 ?c_r2)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 3c -> " ?r_c3 " con valor " ?result crlf)
 )
 
 ;;; Regla 25
@@ -436,8 +428,9 @@
   ?h1 <- (celda (id ?r_c2) (rango $?c_r2))
   (test (> (length $?c_r2) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ ?c_r1 ?c_r3))))
-  (printout t "Se activa regla 25" crlf)
+  (bind ?result (- ?r_v (+ ?c_r1 ?c_r3)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 3c -> " ?r_c2 " con valor " ?result crlf)
 )
 
 ;;; Regla 26
@@ -448,8 +441,9 @@
   ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
   (test (> (length $?c_r1) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ ?c_r2 ?c_r3))))
-  (printout t "Se activa regla 26" crlf)
+  (bind ?result (- ?r_v (+ ?c_r2 ?c_r3)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 3c -> " ?r_c1 " con valor " ?result crlf)
 )
 
 ;;; Regla 27
@@ -461,8 +455,9 @@
   ?h1 <- (celda (id ?r_c4) (rango $?c_r4))
   (test (> (length $?c_r4) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ ?c_r1 ?c_r2) ?c_r3))))
-  (printout t "Se activa regla 27" crlf)
+  (bind ?result (- ?r_v (+ (+ ?c_r1 ?c_r2) ?c_r3)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 4c -> " ?r_c4 " con valor " ?result crlf)
 )
 
 ;;; Regla 28
@@ -474,8 +469,9 @@
   ?h1 <- (celda (id ?r_c3) (rango $?c_r3))
   (test (> (length $?c_r3) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ ?c_r1 ?c_r2) ?c_r4))))
-  (printout t "Se activa regla 28" crlf)
+  (bind ?result (- ?r_v (+ (+ ?c_r1 ?c_r2) ?c_r4)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 4c -> " ?r_c3 " con valor " ?result crlf)
 )
 
 ;;; Regla 29
@@ -487,8 +483,9 @@
   ?h1 <- (celda (id ?r_c2) (rango $?c_r2))
   (test (> (length $?c_r2) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ ?c_r1 ?c_r4) ?c_r3))))
-  (printout t "Se activa regla 29" crlf)
+  (bind ?result (- ?r_v (+ (+ ?c_r1 ?c_r4) ?c_r3)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 4c -> " ?r_c2 " con valor " ?result crlf)
 )
 
 ;;; Regla 30
@@ -500,8 +497,9 @@
   ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
   (test (> (length $?c_r1) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ ?c_r4 ?c_r2) ?c_r3))))
-  (printout t "Se activa regla 30" crlf)
+  (bind ?result (- ?r_v (+ (+ ?c_r4 ?c_r2) ?c_r3)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 4c -> " ?r_c1 " con valor " ?result crlf)
 )
 
 ;;; Regla 31
@@ -514,8 +512,9 @@
   ?h1 <- (celda (id ?r_c5) (rango $?c_r5))
   (test (> (length $?c_r5) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ (+ ?c_r1 ?c_r2) ?c_r3) ?c_r4))))
-  (printout t "Se activa regla 31" crlf)
+  (bind ?result (- ?r_v (+ (+ (+ ?c_r1 ?c_r2) ?c_r3) ?c_r4)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 5c -> " ?r_c5 " con valor " ?result crlf)
 )
 
 ;;; Regla 32
@@ -528,8 +527,9 @@
   ?h1 <- (celda (id ?r_c4) (rango $?c_r4))
   (test (> (length $?c_r4) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ (+ ?c_r1 ?c_r2) ?c_r3) ?c_r5))))
-  (printout t "Se activa regla 32" crlf)
+  (bind ?result (- ?r_v (+ (+ (+ ?c_r1 ?c_r2) ?c_r3) ?c_r5)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 5c -> " ?r_c4 " con valor " ?result crlf)
 )
 
 ;;; Regla 33
@@ -542,8 +542,9 @@
   ?h1 <- (celda (id ?r_c3) (rango $?c_r3))
   (test (> (length $?c_r3) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ (+ ?c_r1 ?c_r2) ?c_r5) ?c_r4))))
-  (printout t "Se activa regla 33" crlf)
+  (bind ?result (- ?r_v (+ (+ (+ ?c_r1 ?c_r2) ?c_r5) ?c_r4)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 5c -> " ?r_c3 " con valor " ?result crlf)
 )
 
 ;;; Regla 34
@@ -556,8 +557,9 @@
   ?h1 <- (celda (id ?r_c2) (rango $?c_r2))
   (test (> (length $?c_r2) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ (+ ?c_r1 ?c_r5) ?c_r3) ?c_r4))))
-  (printout t "Se activa regla 34" crlf)
+  (bind ?result (- ?r_v (+ (+ (+ ?c_r1 ?c_r5) ?c_r3) ?c_r4)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 5c -> " ?r_c2 " con valor " ?result crlf)
 )
 
 ;;; Regla 35
@@ -570,8 +572,9 @@
   ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
   (test (> (length $?c_r1) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ (+ ?c_r5 ?c_r2) ?c_r3) ?c_r4))))
-  (printout t "Se activa regla 35" crlf)
+  (bind ?result (- ?r_v (+ (+ (+ ?c_r5 ?c_r2) ?c_r3) ?c_r4)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 5c -> " ?r_c1 " con valor " ?result crlf)
 )
 
 ;;; Regla 36
@@ -585,8 +588,9 @@
   ?h1 <- (celda (id ?r_c6) (rango $?c_r6))
   (test (> (length $?c_r6) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ (+ (+ ?c_r1 ?c_r2) ?c_r3) ?c_r4) ?c_r5))))
-  (printout t "Se activa regla 36" crlf)
+  (bind ?result (- ?r_v (+ (+ (+ (+ ?c_r1 ?c_r2) ?c_r3) ?c_r4) ?c_r5)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 6c -> " ?r_c6 " con valor " ?result crlf)
 )
 
 ;;; Regla 37
@@ -600,8 +604,9 @@
   ?h1 <- (celda (id ?r_c5) (rango $?c_r5))
   (test (> (length $?c_r5) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ (+ (+ ?c_r1 ?c_r2) ?c_r3) ?c_r4) ?c_r6))))
-  (printout t "Se activa regla 37" crlf)
+  (bind ?result (- ?r_v (+ (+ (+ (+ ?c_r1 ?c_r2) ?c_r3) ?c_r4) ?c_r6)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 6c -> " ?r_c5 " con valor " ?result crlf)
 )
 
 ;;; Regla 38
@@ -615,8 +620,9 @@
   ?h1 <- (celda (id ?r_c4) (rango $?c_r4))
   (test (> (length $?c_r4) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ (+ (+ ?c_r1 ?c_r2) ?c_r3) ?c_r6) ?c_r5))))
-  (printout t "Se activa regla 38" crlf)
+  (bind ?result (- ?r_v (+ (+ (+ (+ ?c_r1 ?c_r2) ?c_r3) ?c_r6) ?c_r5)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 6c -> " ?r_c4 " con valor " ?result crlf)
 )
 
 ;;; Regla 39
@@ -630,8 +636,9 @@
   ?h1 <- (celda (id ?r_c3) (rango $?c_r3))
   (test (> (length $?c_r3) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ (+ (+ ?c_r1 ?c_r2) ?c_r6) ?c_r4) ?c_r5))))
-  (printout t "Se activa regla 39" crlf)
+  (bind ?result (- ?r_v (+ (+ (+ (+ ?c_r1 ?c_r2) ?c_r6) ?c_r4) ?c_r5)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 6c -> " ?r_c3 " con valor " ?result crlf)
 )
 
 ;;; Regla 40
@@ -645,8 +652,9 @@
   ?h1 <- (celda (id ?r_c2) (rango $?c_r2))
   (test (> (length $?c_r2) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ (+ (+ ?c_r1 ?c_r6) ?c_r3) ?c_r4) ?c_r5))))
-  (printout t "Se activa regla 40" crlf)
+  (bind ?result (- ?r_v (+ (+ (+ (+ ?c_r1 ?c_r6) ?c_r3) ?c_r4) ?c_r5)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 6c -> " ?r_c2 " con valor " ?result crlf)
 )
 
 ;;; Regla 41
@@ -660,19 +668,21 @@
   ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
   (test (> (length $?c_r1) 1))
   =>
-  (modify ?h1 (rango (- ?r_v (+ (+ (+ (+ ?c_r6 ?c_r2) ?c_r3) ?c_r4) ?c_r5))))
-  (printout t "Se activa regla 41" crlf)
+  (bind ?result (- ?r_v (+ (+ (+ (+ ?c_r6 ?c_r2) ?c_r3) ?c_r4) ?c_r5)))
+  (modify ?h1 (rango ?result))
+  (printout t "Completa 6c -> " ?r_c1 " con valor " ?result crlf)
 )
 
 ;;; Sumas únicas de 2 casillas
 
 ;;; Regla 42
 (defrule suma-unica-2c-3
+  (declare (salience 10))
   (restriccion (valor 3) (casillas ?r_c1 ?r_c2))
-  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
-  (test (> (length $?c_r1) 2))
-  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
-  (test (> (length $?c_r2) 2))
+  ?h1 <- (celda (id ?r_c1) (rango 1 2 $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango 1 2 $?c_r2))
+  (test (or (> (length $?c_r1) 0)
+            (> (length $?c_r2) 0)))
   =>
   (modify ?h1 (rango 1 2))
   (modify ?h2 (rango 1 2))
@@ -681,11 +691,12 @@
 
 ;;; Regla 43
 (defrule suma-unica-2c-4
+  (declare (salience 10))
   (restriccion (valor 4) (casillas ?r_c1 ?r_c2))
-  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
-  (test (> (length $?c_r1) 2))
-  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
-  (test (> (length $?c_r2) 2))
+  ?h1 <- (celda (id ?r_c1) (rango 1 $?c_r1_m 3 $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango 1 $?c_r2_m 3 $?c_r2))
+  (test (or (> (length (create$ $?c_r2 $?c_r2_m)) 0)
+            (> (length (create$ $?c_r1 $?c_r1_m)) 0)))
   =>
   (modify ?h1 (rango 1 3))
   (modify ?h2 (rango 1 3))
