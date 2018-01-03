@@ -707,28 +707,156 @@
 
 ;;; Regla 44
 (defrule suma-unica-2c-16
+  (declare (salience 10))
   (restriccion (valor 16) (casillas ?r_c1 ?r_c2))
-  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
-  (test (> (length $?c_r1) 2))
-  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
-  (test (> (length $?c_r2) 2))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1 7 $?c_r1_m 9))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2 7 $?c_r2_m 9))
+  (test (or (> (length (create$ $?c_r2 $?c_r2_m)) 0)
+            (> (length (create$ $?c_r1 $?c_r1_m)) 0)))
   =>
-  (modify ?h1 (rango 8 9))
-  (modify ?h2 (rango 8 9))
+  (modify ?h1 (rango 7 9))
+  (modify ?h2 (rango 7 9))
   (printout t "Suma unica 2c 16 -> " ?r_c1 " , " ?r_c2 crlf)
 )
 
 ;;; Regla 45
 (defrule suma-unica-2c-17
+  (declare (salience 10))
   (restriccion (valor 17) (casillas ?r_c1 ?r_c2))
-  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
-  (test (> (length $?c_r1) 2))
-  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
-  (test (> (length $?c_r2) 2))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1 8 9))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2 8 9))
+  (test (or (> (length $?c_r2) 0) (> (length $?c_r1) 0)))
   =>
-  (modify ?h1 (rango 7 9))
-  (modify ?h2 (rango 7 9))
+  (modify ?h1 (rango 8 9))
+  (modify ?h2 (rango 8 9))
   (printout t "Suma unica 2c 17 -> " ?r_c1 " , " ?r_c2 crlf)
+)
+
+;;; Regla 46
+(defrule busca-candidato-unico-2c
+  (declare (salience -5))
+  (restriccion (valor ?r_v&:(<= ?r_v 18)) (casillas ?r_c1 ?r_c2))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  (test (> (length $?c_r1) 1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  (test (> (length $?c_r2) 1))
+  (test (neq ?r_c1 ?r_c2))
+  =>
+  (bind ?c_candidate1 0)
+  (bind ?c_candidate2 0)
+  (bind ?results 0)
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (loop-for-count (?j 1 (length $?c_r2)) do
+      (bind ?b (nth$ ?j $?c_r2))
+      (if (= ?r_v (+ ?a ?b))
+        then (bind ?results (+ ?results +1))
+             (bind ?c_candidate1 ?a)
+             (bind ?c_candidate2 ?b)
+      )
+    )
+  )
+  (if (= ?results 1)
+    then (modify ?h1 (rango ?c_candidate1))
+         (modify ?h2 (rango ?c_candidate2))
+         (printout t "Encuentra candidado unico 2c -> " ?r_c1 "(" ?c_candidate1 "), " ?r_c2 "(" ?c_candidate2 ")" crlf)
+  )
+)
+
+;;; Regla 47
+(defrule busca-candidato-unico-3c-1 ;1 resuelta - 2 no
+  (declare (salience -5))
+  (restriccion (valor ?r_v) (casillas ?r_c1 ?r_c2 ?r_c3))
+  (celda (id ?r_c1) (rango ?c_r1))
+  ?h1 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h2 <- (celda (id ?r_c3) (rango $?c_r3))
+  (test (> (length $?c_r2) 1))
+  (test (> (length $?c_r3) 1))
+  =>
+  (bind ?r_v (- ?r_v ?c_r1))
+  (bind ?c_candidate1 0)
+  (bind ?c_candidate2 0)
+  (bind ?results 0)
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (loop-for-count (?j 1 (length $?c_r3)) do
+      (bind ?b (nth$ ?j $?c_r3))
+      (if (and (= ?r_v (+ ?a ?b)) (neq ?a ?b))
+        then
+             (bind ?results (+ ?results +1))
+             (bind ?c_candidate1 ?a)
+             (bind ?c_candidate2 ?b)
+      )
+    )
+  )
+  (if (= ?results 1)
+    then (modify ?h1 (rango ?c_candidate1))
+         (modify ?h2 (rango ?c_candidate2))
+         (printout t "Encuentra candidado unico 3c -> " ?r_c2 "(" ?c_candidate1 "), " ?r_c3 "(" ?c_candidate2 ")" crlf)
+  )
+)
+
+(defrule busca-candidado-unico-3c-2 ;1 resuelta - 2 no
+  (declare (salience -5))
+  (restriccion (valor ?r_v) (casillas ?r_c1 ?r_c2 ?r_c3))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  (celda (id ?r_c2) (rango ?c_r2))
+  ?h2 <- (celda (id ?r_c3) (rango $?c_r3))
+  (test (> (length $?c_r1) 1))
+  (test (> (length $?c_r3) 1))
+  =>
+  (bind ?r_v (- ?r_v ?c_r2))
+  (bind ?c_candidate1 0)
+  (bind ?c_candidate2 0)
+  (bind ?results 0)
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (loop-for-count (?j 1 (length $?c_r3)) do
+      (bind ?b (nth$ ?j $?c_r3))
+      (if (and (= ?r_v (+ ?a ?b)) (neq ?a ?b))
+        then
+             (bind ?results (+ ?results +1))
+             (bind ?c_candidate1 ?a)
+             (bind ?c_candidate2 ?b)
+      )
+    )
+  )
+  (if (= ?results 1)
+    then (modify ?h1 (rango ?c_candidate1))
+         (modify ?h2 (rango ?c_candidate2))
+         (printout t "Encuentra candidado unico 3c -> " ?r_c1 "(" ?c_candidate1 "), " ?r_c3 "(" ?c_candidate2 ")" crlf)
+  )
+)
+
+(defrule busca-candidado-unico-3c-3 ;1 resuelta - 2 no
+  (declare (salience -5))
+  (restriccion (valor ?r_v) (casillas ?r_c1 ?r_c2 ?r_c3))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  (celda (id ?r_c3) (rango ?c_r3))
+  (test (> (length $?c_r1) 1))
+  (test (> (length $?c_r2) 1))
+  =>
+  (bind ?r_v (- ?r_v ?c_r3))
+  (bind ?c_candidate1 0)
+  (bind ?c_candidate2 0)
+  (bind ?results 0)
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (loop-for-count (?j 1 (length $?c_r2)) do
+      (bind ?b (nth$ ?j $?c_r2))
+      (if (and (= ?r_v (+ ?a ?b)) (neq ?a ?b))
+        then
+             (bind ?results (+ ?results +1))
+             (bind ?c_candidate1 ?a)
+             (bind ?c_candidate2 ?b)
+      )
+    )
+  )
+  (if (= ?results 1)
+    then (modify ?h1 (rango ?c_candidate1))
+         (modify ?h2 (rango ?c_candidate2))
+  )
 )
 
 ;;;============================================================================
