@@ -796,6 +796,7 @@
   )
 )
 
+;;; Regla 48
 (defrule busca-candidado-unico-3c-2 ;1 resuelta - 2 no
   (declare (salience -5))
   (restriccion (valor ?r_v) (casillas ?r_c1 ?r_c2 ?r_c3))
@@ -828,6 +829,7 @@
   )
 )
 
+;;; Regla 49
 (defrule busca-candidado-unico-3c-3 ;1 resuelta - 2 no
   (declare (salience -5))
   (restriccion (valor ?r_v) (casillas ?r_c1 ?r_c2 ?r_c3))
@@ -856,6 +858,46 @@
   (if (= ?results 1)
     then (modify ?h1 (rango ?c_candidate1))
          (modify ?h2 (rango ?c_candidate2))
+         (printout t "Encuentra candidado unico 3c -> " ?r_c1 "(" ?c_candidate1 "), " ?r_c2 "(" ?c_candidate2 ")" crlf)
+  )
+)
+
+;;; Regla 50
+(defrule busca-candidato-unico-3c ;0 resultas - 3 no
+  (declare (salience -5))
+  (restriccion (valor ?r_v) (casillas ?r_c1 ?r_c2 ?r_c3))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  (test (> (length $?c_r1) 1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  (test (> (length $?c_r2) 1))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  (test (> (length $?c_r3) 1))
+  =>
+  (bind ?c_candidate1 0)
+  (bind ?c_candidate2 0)
+  (bind ?c_candidate3 0)
+  (bind ?results 0)
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (loop-for-count (?j 1 (length $?c_r2)) do
+      (bind ?b (nth$ ?j $?c_r2))
+      	(loop-for-count (?k 1 (length $?c_r3)) do
+      		(bind ?c (nth$ ?k $?c_r3))
+      			(if (and (= ?r_v (+ ?a (+ ?b ?c))) (neq ?a ?b) (neq ?a ?c) (neq ?b ?c))
+        			then
+             		(bind ?results (+ ?results +1))
+             		(bind ?c_candidate1 ?a)
+             		(bind ?c_candidate2 ?b)
+             		(bind ?c_candidate3 ?c)
+      		)
+      	)
+    )
+  )
+  (if (= ?results 1)
+    then (modify ?h1 (rango ?c_candidate1))
+         (modify ?h2 (rango ?c_candidate2))
+         (modify ?h3 (rango ?c_candidate3))
+         (printout t "Encuentra candidado unico 3c -> " ?r_c1 "(" ?c_candidate1 "), " ?r_c2 "(" ?c_candidate2 "), " ?r_c3 "(" ?c_candidate3 ")" crlf)
   )
 )
 
