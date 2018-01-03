@@ -299,7 +299,7 @@
   (modify ?h2 (rango ?c2_v))
   (modify ?h3 (rango ?c3_v))
   (modify ?h3 (rango ?c4_v))
-  (printout t "Valores maximos 4c -> " ?v1 "(" ?c1_v "), " ?v2 "(" ?c2_v "), " ?v3 "(" ?c3_v "), " ?v4 "(" ?c4_v ")"" crlf)
+  (printout t "Valores maximos 4c -> " ?v1 "(" ?c1_v "), " ?v2 "(" ?c2_v "), " ?v3 "(" ?c3_v "), " ?v4 "(" ?c4_v ")" crlf)
 )
 
 ;;; Regla 17
@@ -350,7 +350,7 @@
   (modify ?h2 (rango ?c2_v))
   (modify ?h3 (rango ?c3_v))
   (modify ?h3 (rango ?c4_v))
-  (printout t "Valores minimos 4c -> " ?v1 "(" ?c1_v "), " ?v2 "(" ?c2_v "), " ?v3 "(" ?c3_v "), " ?v4 "(" ?c4_v ")"" crlf)
+  (printout t "Valores minimos 4c -> " ?v1 "(" ?c1_v "), " ?v2 "(" ?c2_v "), " ?v3 "(" ?c3_v "), " ?v4 "(" ?c4_v ")" crlf)
 )
 
 ;;; Regla 20
