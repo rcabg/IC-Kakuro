@@ -187,35 +187,37 @@
 
 ;;; Trios ocultos
 
-; ;;; Regla 10:
-; (defrule trio-asignado-fila
-;   ?h1 <- (celda (id ?c1_id) (fila ?c_f) (rango ?v1 ?v2 ?v3))
-;   ?h2 <- (celda (id ?c2_id) (fila ?c_f) (rango ?v1 ?v2 ?v3))
-;   (test (neq ?h1 ?h2))
-;   (restriccion (casillas $?r_c))
-;   (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
-;   ?h3 <- (celda (id ?c3_id) (fila ?c_f) (rango $?ini ?v&?v1|?v2|?v3 $?fin))
-;   (test (member ?c3_id $?r_c))
-;   (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
-;   =>
-;   (modify ?h3 (rango $?ini $?fin))
-;   (printout t "Trio oculto fila para valores (" ?v1 " " ?v2 " " ?v3 ") en celda " ?c3_id " (quita " ?v ")" crlf)
-; )
+;;; Regla 10:
+(defrule trio-asignado-fila
+  ?h1 <- (celda (id ?c1_id) (fila ?c_f) (rango ?v1 ?v2 ?v3))
+  ?h2 <- (celda (id ?c2_id) (fila ?c_f) (rango ?v1 ?v2 ?v3))
+  ?h3 <- (celda (id ?c3_id) (fila ?c_f) (rango ?v1 ?v2 ?v3))
+  (test (and (and (neq ?h1 ?h2) (neq ?h1 ?h3)) (neq ?h2 ?h3)))
+  (restriccion (casillas $?r_c))
+  (test (and (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)) (member ?c3_id $?r_c)))
+  ?h4 <- (celda (id ?c4_id) (fila ?c_f) (rango $?ini ?v&?v1|?v2|?v3 $?fin))
+  (test (member ?c4_id $?r_c))
+  (test (and (and (neq ?h1 ?h4) (neq ?h2 ?h4)) (neq ?h3 ?h4)))
+  =>
+  (modify ?h4 (rango $?ini $?fin))
+  (printout t "Trio oculto fila para valores (" ?v1 " " ?v2 " " ?v3 ") en celda " ?c4_id " (quita " ?v ")" crlf)
+)
 
-; ;;; Regla 11:
-; (defrule trio-asignado-columna
-;   ?h1 <- (celda (id ?c1_id) (columna ?c_c) (rango ?v1 ?v2 ?v3))
-;   ?h2 <- (celda (id ?c2_id) (columna ?c_c) (rango ?v1 ?v2 ?v3))
-;   (test (neq ?h1 ?h2))
-;   (restriccion (casillas $?r_c))
-;   (test (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)))
-;   ?h3 <- (celda (id ?c3_id) (columna ?c_c) (rango $?ini ?v&?v1|?v2|?v3 $?fin))
-;   (test (member ?c3_id $?r_c))
-;   (test (and (neq ?h1 ?h3) (neq ?h2 ?h3)))
-;   =>
-;   (modify ?h3 (rango $?ini $?fin))
-;   (printout t "Trio oculto columna para valores (" ?v1 " " ?v2 " " ?v3 ") en celda " ?c3_id " (quita " ?v ")" crlf)
-; )
+;;; Regla 11:
+(defrule trio-asignado-columna
+  ?h1 <- (celda (id ?c1_id) (columna ?c_c) (rango ?v1 ?v2 ?v3))
+  ?h2 <- (celda (id ?c2_id) (columna ?c_c) (rango ?v1 ?v2 ?v3))
+  ?h3 <- (celda (id ?c3_id) (columna ?c_c) (rango ?v1 ?v2 ?v3))
+  (test (and (and (neq ?h1 ?h2) (neq ?h1 ?h3)) (neq ?h2 ?h3)))
+  (restriccion (casillas $?r_c))
+  (test (and (and (member ?c1_id $?r_c) (member ?c2_id $?r_c)) (member ?c3_id $?r_c)))
+  ?h4 <- (celda (id ?c4_id) (columna ?c_c) (rango $?ini ?v&?v1|?v2|?v3 $?fin))
+  (test (member ?c4_id $?r_c))
+  (test (and (and (neq ?h1 ?h4) (neq ?h2 ?h4)) (neq ?h3 ?h4)))
+  =>
+  (modify ?h4 (rango $?ini $?fin))
+  (printout t "Trio oculto columna para valores (" ?v1 " " ?v2 " " ?v3 ") en celda " ?c4_id " (quita " ?v ")" crlf)
+)
 
 ; ;;; Cuadriples ocultos
 ;
