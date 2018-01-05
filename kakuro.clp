@@ -737,17 +737,18 @@
   (declare (salience -5))
   (restriccion (valor ?r_v&:(<= ?r_v 18)) (casillas ?r_c1 ?r_c2))
   ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
-  (test (> (length $?c_r1) 1))
   ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
-  (test (> (length $?c_r2) 1))
-  (test (neq ?r_c1 ?r_c2))
+  (test (and (> (length $?c_r1) 1) (> (length $?c_r2) 1)))
   =>
   (bind ?results 0)
   (loop-for-count (?i 1 (length $?c_r1)) do
     (bind ?a (nth$ ?i $?c_r1))
     (loop-for-count (?j 1 (length $?c_r2)) do
       (bind ?b (nth$ ?j $?c_r2))
-      (if (= ?r_v (+ ?a ?b))
+      (if (and
+              (= ?r_v (+ ?a ?b))
+              (neq ?a ?b)
+          )
         then (bind ?results (+ ?results +1))
              (bind ?c_candidate1 ?a)
              (bind ?c_candidate2 ?b)
@@ -782,7 +783,12 @@
       (bind ?b (nth$ ?j $?c_r2))
       	(loop-for-count (?k 1 (length $?c_r3)) do
       		(bind ?c (nth$ ?k $?c_r3))
-      		(if (and (= ?r_v (+ ?a (+ ?b ?c))) (neq ?a ?b) (neq ?a ?c) (neq ?b ?c))
+      		(if (and
+                  (= ?r_v (+ ?a (+ ?b ?c)))
+                  (neq ?a ?b)
+                  (neq ?a ?c)
+                  (neq ?b ?c)
+              )
         		then
            		(bind ?results (+ ?results +1))
            		(bind ?c_candidate1 ?a)
@@ -800,6 +806,7 @@
   )
 )
 
+;;; Regla 48
 (defrule busca-candidato-unico-4c
   (declare (salience -5))
   (restriccion (valor ?r_v) (casillas ?r_c1 ?r_c2 ?r_c3 ?r_c4))
@@ -808,10 +815,6 @@
   ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
   ?h4 <- (celda (id ?r_c4) (rango $?c_r4))
   (test (or
-            (and (> (length $?c_r1) 1) (> (length $?c_r2) 1) (> (length $?c_r3) 1))
-            (and (> (length $?c_r1) 1) (> (length $?c_r3) 1) (> (length $?c_r4) 1))
-            (and (> (length $?c_r1) 1) (> (length $?c_r2) 1) (> (length $?c_r4) 1))
-            (and (> (length $?c_r2) 1) (> (length $?c_r3) 1) (> (length $?c_r4) 1))
             (and (> (length $?c_r1) 1) (> (length $?c_r2) 1))
             (and (> (length $?c_r1) 1) (> (length $?c_r3) 1))
             (and (> (length $?c_r1) 1) (> (length $?c_r4) 1))
@@ -856,6 +859,76 @@
          (modify ?h3 (rango ?c_candidate3))
          (modify ?h4 (rango ?c_candidate4))
          (printout t crlf "**** Encuentra candidado unico 4c -> " ?r_c1 "(" ?c_candidate1 "), " ?r_c2 "(" ?c_candidate2 "), " ?r_c3 "(" ?c_candidate3 "), " ?r_c4 "(" ?c_candidate4 ")" crlf)
+  )
+)
+
+;;; Regla 49
+(defrule busca-candidato-unico-5c
+  (declare (salience -5))
+  (restriccion (valor ?r_v) (casillas ?r_c1 ?r_c2 ?r_c3 ?r_c4 ?r_c5))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  ?h4 <- (celda (id ?r_c4) (rango $?c_r4))
+  ?h5 <- (celda (id ?r_c5) (rango $?c_r5))
+  (test (or
+            (and (> (length $?c_r4) 1) (> (length $?c_r5) 1))
+            (and (> (length $?c_r3) 1) (> (length $?c_r5) 1))
+            (and (> (length $?c_r3) 1) (> (length $?c_r4) 1))
+            (and (> (length $?c_r2) 1) (> (length $?c_r5) 1))
+            (and (> (length $?c_r2) 1) (> (length $?c_r4) 1))
+            (and (> (length $?c_r2) 1) (> (length $?c_r3) 1))
+            (and (> (length $?c_r1) 1) (> (length $?c_r5) 1))
+            (and (> (length $?c_r1) 1) (> (length $?c_r4) 1))
+            (and (> (length $?c_r1) 1) (> (length $?c_r3) 1))
+            (and (> (length $?c_r1) 1) (> (length $?c_r2) 1))
+        )
+  )
+  =>
+  (bind ?results 0)
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (loop-for-count (?j 1 (length $?c_r2)) do
+      (bind ?b (nth$ ?j $?c_r2))
+      (loop-for-count (?k 1 (length $?c_r3)) do
+      	(bind ?c (nth$ ?k $?c_r3))
+        (loop-for-count (?w 1 (length $?c_r4)) do
+          (bind ?d (nth$ ?w $?c_r4))
+          (loop-for-count (?q 1 (length $?c_r5)) do
+            (bind ?e (nth$ ?q $?c_r5))
+        		(if (and
+                    (= ?r_v (+ ?a ?b ?c ?d ?e))
+                    (neq ?a ?b)
+                    (neq ?a ?c)
+                    (neq ?a ?d)
+                    (neq ?a ?e)
+                    (neq ?b ?c)
+                    (neq ?b ?d)
+                    (neq ?b ?e)
+                    (neq ?c ?d)
+                    (neq ?c ?e)
+                    (neq ?d ?e)
+                )
+          		then
+             		(bind ?results (+ ?results +1))
+             		(bind ?c_candidate1 ?a)
+             		(bind ?c_candidate2 ?b)
+             		(bind ?c_candidate3 ?c)
+                (bind ?c_candidate4 ?d)
+                (bind ?c_candidate5 ?e)
+            )
+          )
+      	)
+      )
+    )
+  )
+  (if (= ?results 1)
+    then (modify ?h1 (rango ?c_candidate1))
+         (modify ?h2 (rango ?c_candidate2))
+         (modify ?h3 (rango ?c_candidate3))
+         (modify ?h4 (rango ?c_candidate4))
+         (modify ?h5 (rango ?c_candidate5))
+         (printout t crlf "***** Encuentra candidado unico 5c -> " ?r_c1 "(" ?c_candidate1 "), " ?r_c2 "(" ?c_candidate2 "), " ?r_c3 "(" ?c_candidate3 "), " ?r_c4 "(" ?c_candidate4 "), " ?r_c5 "(" ?c_candidate5 ")" crlf)
   )
 )
 
