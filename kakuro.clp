@@ -64,7 +64,7 @@
 ;;; Eliminar los valores de las celdas mayores a los de las restricciones
 
 (defrule elimina-mayores-a-restricciones
-  (declare (salience 15))
+  (declare (salience 20))
   (restriccion (id ?) (valor ?r_v) (casillas $?r_ini ?r_c $?r_fin))
   ?h <- (celda (id ?r_c) (rango $?c_ini ?c_r&:(>= ?c_r ?r_v) $?c_fin))
   =>
@@ -84,7 +84,7 @@
 ;;; Regla 3
 ;;; Si es par y menor-igual que 18, no puede estar el valor/2 en ninguna casilla
 (defrule elimina-mitad-si-par-menor-igual-18
-  (declare (salience 10))
+  (declare (salience 5))
   (restriccion (valor ?r_v) (casillas ?r_c1 ?r_c2))
   (test (and
             (= (mod ?r_v 2) 0)
@@ -774,70 +774,1030 @@
 
 ;;; Regla 42
 (defrule suma-unica-2c-3
-  (declare (salience 10))
   (restriccion (valor 3) (casillas ?r_c1 ?r_c2))
-  ?h1 <- (celda (id ?r_c1) (rango 1 2 $?c_r1))
-  ?h2 <- (celda (id ?r_c2) (rango 1 2 $?c_r2))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango  $?c_r2))
   (test (or
-           (> (length $?c_r1) 0)
-           (> (length $?c_r2) 0)
+           (> (length $?c_r1) 2)
+           (> (length $?c_r2) 2)
         )
   )
   =>
-  (modify ?h1 (rango 1 2))
-  (modify ?h2 (rango 1 2))
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
   (printout t "Suma unica 2c 3 -> " ?r_c1 " , " ?r_c2 crlf)
 )
 
 ;;; Regla 43
 (defrule suma-unica-2c-4
-  (declare (salience 10))
   (restriccion (valor 4) (casillas ?r_c1 ?r_c2))
-  ?h1 <- (celda (id ?r_c1) (rango 1 $?c_r1_m 3 $?c_r1))
-  ?h2 <- (celda (id ?r_c2) (rango 1 $?c_r2_m 3 $?c_r2))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
   (test (or
-           (> (length (create$ $?c_r2 $?c_r2_m)) 0)
-           (> (length (create$ $?c_r1 $?c_r1_m)) 0)
+           (> (length (create$ $?c_r1)) 2)
+           (> (length (create$ $?c_r2)) 2)
         )
   )
   =>
-  (modify ?h1 (rango 1 3))
-  (modify ?h2 (rango 1 3))
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
   (printout t "Suma unica 2c 4 -> " ?r_c1 " , " ?r_c2 crlf)
 )
 
 ;;; Regla 44
 (defrule suma-unica-2c-16
-  (declare (salience 10))
   (restriccion (valor 16) (casillas ?r_c1 ?r_c2))
-  ?h1 <- (celda (id ?r_c1) (rango $?c_r1 7 $?c_r1_m 9))
-  ?h2 <- (celda (id ?r_c2) (rango $?c_r2 7 $?c_r2_m 9))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
   (test (or
-            (> (length (create$ $?c_r2 $?c_r2_m)) 0)
-            (> (length (create$ $?c_r1 $?c_r1_m)) 0)
+            (> (length (create$ $?c_r2)) 2)
+            (> (length (create$ $?c_r1)) 2)
         )
   )
   =>
-  (modify ?h1 (rango 7 9))
-  (modify ?h2 (rango 7 9))
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
   (printout t "Suma unica 2c 16 -> " ?r_c1 " , " ?r_c2 crlf)
 )
 
 ;;; Regla 45
 (defrule suma-unica-2c-17
-  (declare (salience 10))
   (restriccion (valor 17) (casillas ?r_c1 ?r_c2))
-  ?h1 <- (celda (id ?r_c1) (rango $?c_r1 8 9))
-  ?h2 <- (celda (id ?r_c2) (rango $?c_r2 8 9))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
   (test (or
-           (> (length $?c_r2) 0)
-           (> (length $?c_r1) 0)
+           (> (length $?c_r2) 2)
+           (> (length $?c_r1) 2)
         )
   )
   =>
-  (modify ?h1 (rango 8 9))
-  (modify ?h2 (rango 8 9))
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
   (printout t "Suma unica 2c 17 -> " ?r_c1 " , " ?r_c2 crlf)
+)
+
+(defrule suma-unica-3c-6
+  (restriccion (valor 6) (casillas ?r_c1 ?r_c2 ?r_c3))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  (test (or
+           (> (length $?c_r1) 3)
+           (> (length $?c_r2) 3)
+           (> (length $?c_r3) 3)
+        )
+  )
+  =>
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r3)) do
+    (bind ?a (nth$ ?i $?c_r3))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+  )
+  (modify ?h3 (rango $?c_r))
+
+  (printout t "Suma unica 3c 6 -> " ?r_c1 " , " ?r_c2 " , " ?r_c3 crlf)
+)
+
+(defrule suma-unica-3c-7
+  (restriccion (valor 7) (casillas ?r_c1 ?r_c2 ?r_c3))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  (test (or
+           (> (length (create$ $?c_r1)) 3)
+           (> (length (create$ $?c_r2)) 3)
+           (> (length (create$ $?c_r3)) 3)
+        )
+  )
+  =>
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r3)) do
+    (bind ?a (nth$ ?i $?c_r3))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+  )
+  (modify ?h3 (rango $?c_r))
+
+  (printout t "Suma unica 3c 7 -> " ?r_c1 " , " ?r_c2 " , " ?r_c3 crlf)
+)
+
+(defrule suma-unica-3c-23
+  (restriccion (valor 23) (casillas ?r_c1 ?r_c2 ?r_c3))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  (test (or
+           (> (length (create$ $?c_r1)) 3)
+           (> (length (create$ $?c_r2)) 3)
+           (> (length (create$ $?c_r3)) 3)
+        )
+  )
+  =>
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r3)) do
+    (bind ?a (nth$ ?i $?c_r3))
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h3 (rango $?c_r))
+
+  (printout t "Suma unica 3c 23 -> " ?r_c1 " , " ?r_c2 " , " ?r_c3 crlf)
+)
+
+(defrule suma-unica-3c-24
+  (restriccion (valor 24) (casillas ?r_c1 ?r_c2 ?r_c3))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  (test (or
+           (> (length $?c_r1) 3)
+           (> (length $?c_r2) 3)
+           (> (length $?c_r3) 3)
+        )
+  )
+  =>
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r3)) do
+    (bind ?a (nth$ ?i $?c_r3))
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h3 (rango $?c_r))
+
+  (printout t "Suma unica 3c 24 -> " ?r_c1 " , " ?r_c2 " , " ?r_c3 crlf)
+)
+
+(defrule suma-unica-4c-10
+  (restriccion (valor 10) (casillas ?r_c1 ?r_c2 ?r_c3 ?r_c4))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  ?h4 <- (celda (id ?r_c4) (rango $?c_r4))
+  (test (or
+           (> (length $?c_r1) 4)
+           (> (length $?c_r2) 4)
+           (> (length $?c_r3) 4)
+           (> (length $?c_r4) 4)
+        )
+  )
+  =>
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r3)) do
+    (bind ?a (nth$ ?i $?c_r3))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+  )
+  (modify ?h3 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r4)) do
+    (bind ?a (nth$ ?i $?c_r4))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+  )
+  (modify ?h4 (rango $?c_r))
+
+  (printout t "Suma unica 4c 10 -> " ?r_c1 " , "
+                                     ?r_c2 " , "
+                                     ?r_c3 " , "
+                                     ?r_c4 crlf)
+)
+
+(defrule suma-unica-4c-11
+  (restriccion (valor 11) (casillas ?r_c1 ?r_c2 ?r_c3 ?r_c4))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  ?h4 <- (celda (id ?r_c4) (rango $?c_r4))
+  (test (or
+           (> (length $?c_r1) 4)
+           (> (length $?c_r2) 4)
+           (> (length $?c_r3) 4)
+           (> (length $?c_r4) 4)
+        )
+  )
+  =>
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r3)) do
+    (bind ?a (nth$ ?i $?c_r3))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+  )
+  (modify ?h3 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r4)) do
+    (bind ?a (nth$ ?i $?c_r4))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+  )
+  (modify ?h4 (rango $?c_r))
+
+  (printout t "Suma unica 4c 11 -> " ?r_c1 " , "
+                                     ?r_c2 " , "
+                                     ?r_c3 " , "
+                                     ?r_c4 crlf)
+)
+
+(defrule suma-unica-4c-29
+  (restriccion (valor 29) (casillas ?r_c1 ?r_c2 ?r_c3 ?r_c4))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  ?h4 <- (celda (id ?r_c4) (rango $?c_r4))
+  (test (or
+           (> (length $?c_r1) 4)
+           (> (length $?c_r2) 4)
+           (> (length $?c_r3) 4)
+           (> (length $?c_r4) 4)
+        )
+  )
+  =>
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r3)) do
+    (bind ?a (nth$ ?i $?c_r3))
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h3 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r4)) do
+    (bind ?a (nth$ ?i $?c_r4))
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h4 (rango $?c_r))
+
+  (printout t "Suma unica 4c 29 -> " ?r_c1 " , "
+                                     ?r_c2 " , "
+                                     ?r_c3 " , "
+                                     ?r_c4 crlf)
+)
+
+(defrule suma-unica-4c-30
+  (restriccion (valor 30) (casillas ?r_c1 ?r_c2 ?r_c3 ?r_c4))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  ?h4 <- (celda (id ?r_c4) (rango $?c_r4))
+  (test (or
+           (> (length $?c_r1) 4)
+           (> (length $?c_r2) 4)
+           (> (length $?c_r3) 4)
+           (> (length $?c_r4) 4)
+        )
+  )
+  =>
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r3)) do
+    (bind ?a (nth$ ?i $?c_r3))
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h3 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r4)) do
+    (bind ?a (nth$ ?i $?c_r4))
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h4 (rango $?c_r))
+
+  (printout t "Suma unica 4c 29 -> " ?r_c1 " , "
+                                     ?r_c2 " , "
+                                     ?r_c3 " , "
+                                     ?r_c4 crlf)
+)
+
+(defrule suma-unica-5c-15
+  (restriccion (valor 15) (casillas ?r_c1 ?r_c2 ?r_c3 ?r_c4 ?r_c5))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  ?h4 <- (celda (id ?r_c4) (rango $?c_r4))
+  ?h5 <- (celda (id ?r_c5) (rango $?c_r5))
+  (test (or
+           (> (length $?c_r1) 5)
+           (> (length $?c_r2) 5)
+           (> (length $?c_r3) 5)
+           (> (length $?c_r4) 5)
+           (> (length $?c_r5) 5)
+        )
+  )
+  =>
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r3)) do
+    (bind ?a (nth$ ?i $?c_r3))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+  )
+  (modify ?h3 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r4)) do
+    (bind ?a (nth$ ?i $?c_r4))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+  )
+  (modify ?h4 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r5)) do
+    (bind ?a (nth$ ?i $?c_r5))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+  )
+  (modify ?h5 (rango $?c_r))
+
+  (printout t "Suma unica 5c 15 -> " ?r_c1 " , "
+                                     ?r_c2 " , "
+                                     ?r_c3 " , "
+                                     ?r_c4 " , "
+                                     ?r_c5 crlf)
 )
 
 ;;; Regla 46
