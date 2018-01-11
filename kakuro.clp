@@ -60,6 +60,25 @@
 ;;; valor de una casilla a partir de reglas que analicen los posibles valores
 ;;; de las casillas relacionadas.
 
+(deftemplate basura
+  (slot id)
+  (multislot rango)
+)
+
+(defrule elimina-basura
+  (declare (salience 10))
+  ?h1 <- (basura (id ?b_id) (rango $?b_r))
+  ?h2 <- (celda (id ?b_id) (rango $?c_ini ?c_r $?c_fin))
+  (test (not (member ?c_r $?b_r)))
+  =>
+  (modify ?h2 (rango $?c_ini $?c_fin))
+  (if (= (length $?b_r) (+ (length $?c_ini) (length $?c_fin)))
+    then
+    (retract ?h1)
+  )
+  (printout t "Elimina basura (" ?c_r ") -> " ?b_id crlf)
+)
+
 ;;; Regla 1
 ;;; Eliminar los valores de las celdas mayores a los de las restricciones
 
@@ -1812,6 +1831,8 @@
         )
   )
   =>
+  (bind $?basura1 (create$))
+  (bind $?basura2 (create$))
   (bind ?results 0)
   (loop-for-count (?i 1 (length $?c_r1)) do
     (bind ?a (nth$ ?i $?c_r1))
@@ -1823,7 +1844,13 @@
           )
         then (bind ?results (+ ?results +1))
              (bind ?c_candidate1 ?a)
+             (if (not (member ?a $?basura1))
+                then (bind $?basura1 (create$ $?basura1 ?a))
+             )
              (bind ?c_candidate2 ?b)
+             (if (not (member ?b $?basura2))
+                then (bind $?basura2 (create$ ?b $?basura2))
+             )
       )
     )
   )
@@ -1831,6 +1858,18 @@
     then (modify ?h1 (rango ?c_candidate1))
          (modify ?h2 (rango ?c_candidate2))
          (printout t crlf "** Encuentra candidado unico 2c -> " ?r_c1 "(" ?c_candidate1 "), " ?r_c2 "(" ?c_candidate2 ")" crlf)
+  )
+  (if (> ?results 1)
+    then (if (< (length $?basura1) (length $?c_r1))
+            then
+            (assert (basura (id ?r_c1) (rango $?basura1)))
+            (printout t "Recolecta basura (2c) " ?r_c1 " - " $?basura1 crlf)
+         )
+         (if (< (length $?basura2) (length $?c_r2))
+                 then
+            (assert (basura (id ?r_c2) (rango $?basura2)))
+            (printout t "Recolecta basura (2c) " ?r_c2 " - " $?basura1 crlf)
+         )
   )
 )
 
@@ -1848,6 +1887,9 @@
         )
   )
   =>
+  (bind $?basura1 (create$))
+  (bind $?basura2 (create$))
+  (bind $?basura3 (create$))
   (bind ?results 0)
   (loop-for-count (?i 1 (length $?c_r1)) do
     (bind ?a (nth$ ?i $?c_r1))
@@ -1864,8 +1906,17 @@
         		then
            		(bind ?results (+ ?results +1))
            		(bind ?c_candidate1 ?a)
-           		(bind ?c_candidate2 ?b)
-           		(bind ?c_candidate3 ?c)
+              (if (not (member ?a $?basura1))
+                 then (bind $?basura1 (create$ ?a $?basura1))
+              )
+              (bind ?c_candidate2 ?b)
+              (if (not (member ?b $?basura2))
+                 then (bind $?basura2 (create$ ?b $?basura2))
+              )
+              (bind ?c_candidate3 ?c)
+              (if (not (member ?c $?basura3))
+                 then (bind $?basura3 (create$ ?c $?basura3))
+              )
       		)
       	)
     )
@@ -1875,6 +1926,23 @@
          (modify ?h2 (rango ?c_candidate2))
          (modify ?h3 (rango ?c_candidate3))
          (printout t crlf "*** Encuentra candidado unico 3c -> " ?r_c1 "(" ?c_candidate1 "), " ?r_c2 "(" ?c_candidate2 "), " ?r_c3 "(" ?c_candidate3 ")" crlf)
+  )
+  (if (> ?results 1)
+    then (if (< (length $?basura1) (length $?c_r1))
+            then
+            (assert (basura (id ?r_c1) (rango $?basura1)))
+            (printout t "Recolecta basura (3c) " ?r_c1 " - " $?basura1 crlf)
+         )
+         (if (< (length $?basura2) (length $?c_r2))
+                 then
+            (assert (basura (id ?r_c2) (rango $?basura2)))
+            (printout t "Recolecta basura (3c) " ?r_c2 " - " $?basura2 crlf)
+         )
+         (if (< (length $?basura3) (length $?c_r3))
+                 then
+            (assert (basura (id ?r_c3) (rango $?basura3)))
+            (printout t "Recolecta basura (3c) " ?r_c3 " - " $?basura3 crlf)
+         )
   )
 )
 
@@ -1896,6 +1964,10 @@
         )
   )
   =>
+  (bind $?basura1 (create$))
+  (bind $?basura2 (create$))
+  (bind $?basura3 (create$))
+  (bind $?basura4 (create$))
   (bind ?results 0)
   (loop-for-count (?i 1 (length $?c_r1)) do
     (bind ?a (nth$ ?i $?c_r1))
@@ -1916,10 +1988,22 @@
               )
         		then
            		(bind ?results (+ ?results +1))
-           		(bind ?c_candidate1 ?a)
-           		(bind ?c_candidate2 ?b)
-           		(bind ?c_candidate3 ?c)
+              (bind ?c_candidate1 ?a)
+              (if (not (member ?a $?basura1))
+                 then (bind $?basura1 (create$ ?a $?basura1))
+              )
+              (bind ?c_candidate2 ?b)
+              (if (not (member ?b $?basura2))
+                 then (bind $?basura2 (create$ ?b $?basura2))
+              )
+              (bind ?c_candidate3 ?c)
+              (if (not (member ?c $?basura3))
+                 then (bind $?basura3 (create$ ?c $?basura3))
+              )
               (bind ?c_candidate4 ?d)
+              (if (not (member ?d $?basura4))
+                 then (bind $?basura4 (create$ ?d $?basura4))
+              )
           )
       	)
       )
@@ -1931,6 +2015,28 @@
          (modify ?h3 (rango ?c_candidate3))
          (modify ?h4 (rango ?c_candidate4))
          (printout t crlf "**** Encuentra candidado unico 4c -> " ?r_c1 "(" ?c_candidate1 "), " ?r_c2 "(" ?c_candidate2 "), " ?r_c3 "(" ?c_candidate3 "), " ?r_c4 "(" ?c_candidate4 ")" crlf)
+  )
+  (if (> ?results 1)
+    then (if (< (length $?basura1) (length $?c_r1))
+            then
+            (assert (basura (id ?r_c1) (rango $?basura1)))
+            (printout t "Recolecta basura (4c) " ?r_c1 " - " $?basura1 crlf)
+         )
+         (if (< (length $?basura2) (length $?c_r2))
+                 then
+            (assert (basura (id ?r_c2) (rango $?basura2)))
+            (printout t "Recolecta basura (4c) " ?r_c2 " - " $?basura2 crlf)
+         )
+         (if (< (length $?basura3) (length $?c_r3))
+                 then
+            (assert (basura (id ?r_c3) (rango $?basura3)))
+            (printout t "Recolecta basura (4c) " ?r_c3 " - " $?basura3 crlf)
+         )
+         (if (< (length $?basura4) (length $?c_r4))
+                 then
+            (assert (basura (id ?r_c4) (rango $?basura4)))
+            (printout t "Recolecta basura (4c) " ?r_c4 " - " $?basura4 crlf)
+         )
   )
 )
 
@@ -1957,6 +2063,11 @@
         )
   )
   =>
+  (bind $?basura1 (create$))
+  (bind $?basura2 (create$))
+  (bind $?basura3 (create$))
+  (bind $?basura4 (create$))
+  (bind $?basura5 (create$))
   (bind ?results 0)
   (loop-for-count (?i 1 (length $?c_r1)) do
     (bind ?a (nth$ ?i $?c_r1))
@@ -1983,11 +2094,26 @@
                 )
           		then
              		(bind ?results (+ ?results +1))
-             		(bind ?c_candidate1 ?a)
-             		(bind ?c_candidate2 ?b)
-             		(bind ?c_candidate3 ?c)
+                (bind ?c_candidate1 ?a)
+                (if (not (member ?a $?basura1))
+                   then (bind $?basura1 (create$ ?a $?basura1))
+                )
+                (bind ?c_candidate2 ?b)
+                (if (not (member ?b $?basura2))
+                   then (bind $?basura2 (create$ ?b $?basura2))
+                )
+                (bind ?c_candidate3 ?c)
+                (if (not (member ?c $?basura3))
+                   then (bind $?basura3 (create$ ?c $?basura3))
+                )
                 (bind ?c_candidate4 ?d)
+                (if (not (member ?d $?basura4))
+                   then (bind $?basura4 (create$ ?d $?basura4))
+                )
                 (bind ?c_candidate5 ?e)
+                (if (not (member ?e $?basura5))
+                   then (bind $?basura5 (create$ ?e $?basura5))
+                )
             )
           )
       	)
@@ -2001,6 +2127,33 @@
          (modify ?h4 (rango ?c_candidate4))
          (modify ?h5 (rango ?c_candidate5))
          (printout t crlf "***** Encuentra candidado unico 5c -> " ?r_c1 "(" ?c_candidate1 "), " ?r_c2 "(" ?c_candidate2 "), " ?r_c3 "(" ?c_candidate3 "), " ?r_c4 "(" ?c_candidate4 "), " ?r_c5 "(" ?c_candidate5 ")" crlf)
+  )
+  (if (> ?results 1)
+    then (if (< (length $?basura1) (length $?c_r1))
+            then
+            (assert (basura (id ?r_c1) (rango $?basura1)))
+            (printout t "Recolecta basura (5c) " ?r_c1 " - " $?basura1 crlf)
+         )
+         (if (< (length $?basura2) (length $?c_r2))
+                 then
+            (assert (basura (id ?r_c2) (rango $?basura2)))
+            (printout t "Recolecta basura (5c) " ?r_c2 " - " $?basura2 crlf)
+         )
+         (if (< (length $?basura3) (length $?c_r3))
+                 then
+            (assert (basura (id ?r_c3) (rango $?basura3)))
+            (printout t "Recolecta basura (5c) " ?r_c3 " - " $?basura3 crlf)
+         )
+         (if (< (length $?basura4) (length $?c_r4))
+                 then
+            (assert (basura (id ?r_c4) (rango $?basura4)))
+            (printout t "Recolecta basura (5c) " ?r_c4 " - " $?basura4 crlf)
+         )
+         (if (< (length $?basura5) (length $?c_r5))
+                 then
+            (assert (basura (id ?r_c5) (rango $?basura5)))
+            (printout t "Recolecta basura (5c) " ?r_c5 " - " $?basura5 crlf)
+         )
   )
 )
 
