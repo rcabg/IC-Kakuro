@@ -389,11 +389,66 @@
   (modify ?h1 (rango ?c1_v))
   (modify ?h2 (rango ?c2_v))
   (modify ?h3 (rango ?c3_v))
-  (modify ?h3 (rango ?c4_v))
+  (modify ?h4 (rango ?c4_v))
   (printout t "Valores maximos 4c -> " ?v1 "(" ?c1_v "), "
                                        ?v2 "(" ?c2_v "), "
                                        ?v3 "(" ?c3_v "), "
                                        ?v4 "(" ?c4_v ")" crlf)
+)
+
+(defrule max-valores-5
+  (restriccion (valor ?r_v) (casillas ?v1 ?v2 ?v3 ?v4 ?v5))
+  ?h1 <- (celda (id ?v1) (rango $?c1_ini ?c1_v))
+  (test (> (+ (length $?c1_ini) 1) 1))
+  ?h2 <- (celda (id ?v2) (rango $?c2_ini ?c2_v))
+  (test (> (+ (length $?c2_ini) 1) 1))
+  ?h3 <- (celda (id ?v3) (rango $?c3_ini ?c3_v))
+  (test (> (+ (length $?c3_ini) 1) 1))
+  ?h4 <- (celda (id ?v4) (rango $?c4_ini ?c4_v))
+  (test (> (+ (length $?c4_ini) 1) 1))
+  ?h5 <- (celda (id ?v5) (rango $?c5_ini ?c5_v))
+  (test (> (+ (length $?c5_ini) 1) 1))
+  (test (= (+ ?c1_v ?c2_v ?c3_v ?c4_v ?c5_v) ?r_v))
+  =>
+  (modify ?h1 (rango ?c1_v))
+  (modify ?h2 (rango ?c2_v))
+  (modify ?h3 (rango ?c3_v))
+  (modify ?h4 (rango ?c4_v))
+  (modify ?h5 (rango ?c5_v))
+  (printout t "Valores maximos 5c -> " ?v1 "(" ?c1_v "), "
+                                       ?v2 "(" ?c2_v "), "
+                                       ?v3 "(" ?c3_v "), "
+                                       ?v4 "(" ?c4_v "), "
+                                       ?v5 "(" ?c5_v ")" crlf)
+)
+
+(defrule max-valores-6
+  (restriccion (valor ?r_v) (casillas ?v1 ?v2 ?v3 ?v4 ?v5 ?v6))
+  ?h1 <- (celda (id ?v1) (rango $?c1_ini ?c1_v))
+  (test (> (+ (length $?c1_ini) 1) 1))
+  ?h2 <- (celda (id ?v2) (rango $?c2_ini ?c2_v))
+  (test (> (+ (length $?c2_ini) 1) 1))
+  ?h3 <- (celda (id ?v3) (rango $?c3_ini ?c3_v))
+  (test (> (+ (length $?c3_ini) 1) 1))
+  ?h4 <- (celda (id ?v4) (rango $?c4_ini ?c4_v))
+  (test (> (+ (length $?c4_ini) 1) 1))
+  ?h5 <- (celda (id ?v5) (rango $?c5_ini ?c5_v))
+  (test (> (+ (length $?c5_ini) 1) 1))
+  ?h6 <- (celda (id ?v6) (rango $?c6_ini ?c6_v))
+  (test (> (+ (length $?c6_ini) 1) 1))
+  (test (= (+ ?c1_v ?c2_v ?c3_v ?c4_v ?c5_v ?c6_v) ?r_v))
+  =>
+  (modify ?h1 (rango ?c1_v))
+  (modify ?h2 (rango ?c2_v))
+  (modify ?h3 (rango ?c3_v))
+  (modify ?h4 (rango ?c4_v))
+  (modify ?h5 (rango ?c5_v))
+  (modify ?h6 (rango ?c6_v))
+  (printout t "Valores maximos 6c -> " ?v1 "(" ?c1_v "), "
+                                       ?v2 "(" ?c2_v "), "
+                                       ?v3 "(" ?c3_v "), "
+                                       ?v4 "(" ?c4_v "), "
+                                       ?v5 "(" ?c5_v ")" crlf)
 )
 
 ;;; Regla 16
@@ -446,11 +501,67 @@
   (modify ?h1 (rango ?c1_v))
   (modify ?h2 (rango ?c2_v))
   (modify ?h3 (rango ?c3_v))
-  (modify ?h3 (rango ?c4_v))
+  (modify ?h4 (rango ?c4_v))
   (printout t "Valores minimos 4c -> " ?v1 "(" ?c1_v "), "
                                        ?v2 "(" ?c2_v "), "
                                        ?v3 "(" ?c3_v "), "
                                        ?v4 "(" ?c4_v ")" crlf)
+)
+
+(defrule min-valores-5
+  (restriccion (valor ?r_v) (casillas ?v1 ?v2 ?v3 ?v4 ?v5))
+  ?h1 <- (celda (id ?v1) (rango ?c1_v $?c1_fin))
+  (test (> (+ (length $?c1_fin) 1) 1))
+  ?h2 <- (celda (id ?v2) (rango ?c2_v $?c2_fin))
+  (test (> (+ (length $?c2_fin) 1) 1))
+  ?h3 <- (celda (id ?v3) (rango ?c3_v $?c3_fin))
+  (test (> (+ (length $?c3_fin) 1) 1))
+  ?h4 <- (celda (id ?v4) (rango ?c4_v $?c4_fin))
+  (test (> (+ (length $?c4_fin) 1) 1))
+  ?h5 <- (celda (id ?v5) (rango ?c5_v $?c5_fin))
+  (test (> (+ (length $?c5_fin) 1) 1))
+  (test (= (+ ?c1_v ?c2_v ?c3_v ?c4_v ?c5_v) ?r_v))
+  =>
+  (modify ?h1 (rango ?c1_v))
+  (modify ?h2 (rango ?c2_v))
+  (modify ?h3 (rango ?c3_v))
+  (modify ?h4 (rango ?c4_v))
+  (modify ?h5 (rango ?c5_v))
+  (printout t "Valores minimos 5c -> " ?v1 "(" ?c1_v "), "
+                                       ?v2 "(" ?c2_v "), "
+                                       ?v3 "(" ?c3_v "), "
+                                       ?v4 "(" ?c4_v "), "
+                                       ?v5 "(" ?c5_v ")" crlf)
+)
+
+(defrule min-valores-6
+  (restriccion (valor ?r_v) (casillas ?v1 ?v2 ?v3 ?v4 ?v5 ?v6))
+  ?h1 <- (celda (id ?v1) (rango ?c1_v $?c1_fin))
+  (test (> (+ (length $?c1_fin) 1) 1))
+  ?h2 <- (celda (id ?v2) (rango ?c2_v $?c2_fin))
+  (test (> (+ (length $?c2_fin) 1) 1))
+  ?h3 <- (celda (id ?v3) (rango ?c3_v $?c3_fin))
+  (test (> (+ (length $?c3_fin) 1) 1))
+  ?h4 <- (celda (id ?v4) (rango ?c4_v $?c4_fin))
+  (test (> (+ (length $?c4_fin) 1) 1))
+  ?h5 <- (celda (id ?v5) (rango ?c5_v $?c5_fin))
+  (test (> (+ (length $?c5_fin) 1) 1))
+  ?h6 <- (celda (id ?v6) (rango ?c6_v $?c6_fin))
+  (test (> (+ (length $?c6_fin) 1) 1))
+  (test (= (+ ?c1_v ?c2_v ?c3_v ?c4_v ?c5_v ?c6_v) ?r_v))
+  =>
+  (modify ?h1 (rango ?c1_v))
+  (modify ?h2 (rango ?c2_v))
+  (modify ?h3 (rango ?c3_v))
+  (modify ?h4 (rango ?c4_v))
+  (modify ?h5 (rango ?c5_v))
+  (modify ?h6 (rango ?c6_v))
+  (printout t "Valores minimos 6c -> " ?v1 "(" ?c1_v "), "
+                                       ?v2 "(" ?c2_v "), "
+                                       ?v3 "(" ?c3_v "), "
+                                       ?v4 "(" ?c4_v "), "
+                                       ?v5 "(" ?c5_v "), "
+                                       ?v6 "(" ?c6_v ")" crlf)
 )
 
 ;;; Regla 19
@@ -1660,7 +1771,7 @@
   )
   (modify ?h4 (rango $?c_r))
 
-  (printout t "Suma unica 4c 29 -> " ?r_c1 " , "
+  (printout t "Suma unica 4c 30 -> " ?r_c1 " , "
                                      ?r_c2 " , "
                                      ?r_c3 " , "
                                      ?r_c4 crlf)
@@ -1813,6 +1924,465 @@
   (modify ?h5 (rango $?c_r))
 
   (printout t "Suma unica 5c 15 -> " ?r_c1 " , "
+                                     ?r_c2 " , "
+                                     ?r_c3 " , "
+                                     ?r_c4 " , "
+                                     ?r_c5 crlf)
+)
+
+(defrule suma-unica-5c-16
+  (restriccion (valor 16) (casillas ?r_c1 ?r_c2 ?r_c3 ?r_c4 ?r_c5))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  ?h4 <- (celda (id ?r_c4) (rango $?c_r4))
+  ?h5 <- (celda (id ?r_c5) (rango $?c_r5))
+  (test (or
+           (> (length $?c_r1) 5)
+           (> (length $?c_r2) 5)
+           (> (length $?c_r3) 5)
+           (> (length $?c_r4) 5)
+           (> (length $?c_r5) 5)
+        )
+  )
+  =>
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r3)) do
+    (bind ?a (nth$ ?i $?c_r3))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+  )
+  (modify ?h3 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r4)) do
+    (bind ?a (nth$ ?i $?c_r4))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+  )
+  (modify ?h4 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r5)) do
+    (bind ?a (nth$ ?i $?c_r5))
+    (if (= ?a 1)
+      then
+      (bind $?c_r  (create$ $?c_r 1))
+    )
+    (if (= ?a 2)
+      then
+      (bind $?c_r  (create$ $?c_r 2))
+    )
+    (if (= ?a 3)
+      then
+      (bind $?c_r  (create$ $?c_r 3))
+    )
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+  )
+  (modify ?h5 (rango $?c_r))
+
+  (printout t "Suma unica 5c 16 -> " ?r_c1 " , "
+                                     ?r_c2 " , "
+                                     ?r_c3 " , "
+                                     ?r_c4 " , "
+                                     ?r_c5 crlf)
+)
+
+(defrule suma-unica-5c-34
+  (restriccion (valor 34) (casillas ?r_c1 ?r_c2 ?r_c3 ?r_c4 ?r_c5))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  ?h4 <- (celda (id ?r_c4) (rango $?c_r4))
+  ?h5 <- (celda (id ?r_c5) (rango $?c_r5))
+  (test (or
+           (> (length $?c_r1) 5)
+           (> (length $?c_r2) 5)
+           (> (length $?c_r3) 5)
+           (> (length $?c_r4) 5)
+           (> (length $?c_r5) 5)
+        )
+  )
+  =>
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r3)) do
+    (bind ?a (nth$ ?i $?c_r3))
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h3 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r4)) do
+    (bind ?a (nth$ ?i $?c_r4))
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h4 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r5)) do
+    (bind ?a (nth$ ?i $?c_r5))
+    (if (= ?a 4)
+      then
+      (bind $?c_r  (create$ $?c_r 4))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h5 (rango $?c_r))
+
+  (printout t "Suma unica 5c 34 -> " ?r_c1 " , "
+                                     ?r_c2 " , "
+                                     ?r_c3 " , "
+                                     ?r_c4 " , "
+                                     ?r_c5 crlf)
+)
+
+(defrule suma-unica-5c-35
+  (restriccion (valor 35) (casillas ?r_c1 ?r_c2 ?r_c3 ?r_c4 ?r_c5))
+  ?h1 <- (celda (id ?r_c1) (rango $?c_r1))
+  ?h2 <- (celda (id ?r_c2) (rango $?c_r2))
+  ?h3 <- (celda (id ?r_c3) (rango $?c_r3))
+  ?h4 <- (celda (id ?r_c4) (rango $?c_r4))
+  ?h5 <- (celda (id ?r_c5) (rango $?c_r5))
+  (test (or
+           (> (length $?c_r1) 5)
+           (> (length $?c_r2) 5)
+           (> (length $?c_r3) 5)
+           (> (length $?c_r4) 5)
+           (> (length $?c_r5) 5)
+        )
+  )
+  =>
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r1)) do
+    (bind ?a (nth$ ?i $?c_r1))
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h1 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r2)) do
+    (bind ?a (nth$ ?i $?c_r2))
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h2 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r3)) do
+    (bind ?a (nth$ ?i $?c_r3))
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h3 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r4)) do
+    (bind ?a (nth$ ?i $?c_r4))
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h4 (rango $?c_r))
+
+  (bind $?c_r (create$))
+  (loop-for-count (?i 1 (length $?c_r5)) do
+    (bind ?a (nth$ ?i $?c_r5))
+    (if (= ?a 5)
+      then
+      (bind $?c_r  (create$ $?c_r 5))
+    )
+    (if (= ?a 6)
+      then
+      (bind $?c_r  (create$ $?c_r 6))
+    )
+    (if (= ?a 7)
+      then
+      (bind $?c_r  (create$ $?c_r 7))
+    )
+    (if (= ?a 8)
+      then
+      (bind $?c_r  (create$ $?c_r 8))
+    )
+    (if (= ?a 9)
+      then
+      (bind $?c_r  (create$ $?c_r 9))
+    )
+  )
+  (modify ?h5 (rango $?c_r))
+
+  (printout t "Suma unica 5c 35 -> " ?r_c1 " , "
                                      ?r_c2 " , "
                                      ?r_c3 " , "
                                      ?r_c4 " , "
@@ -2262,12 +2832,12 @@
          (modify ?h4 (rango ?c_candidate4))
          (modify ?h5 (rango ?c_candidate5))
          (modify ?h6 (rango ?c_candidate6))
-         (printout t crlf "****** Encuentra candidado unico 6c -> " ?r_c1 "(" ?c_candidate1 "),
-                                                                  " ?r_c2 "(" ?c_candidate2 "),
-                                                                  " ?r_c3 "(" ?c_candidate3 "),
-                                                                  " ?r_c4 "(" ?c_candidate4 "),
-                                                                  " ?r_c5 "(" ?c_candidate5 "),
-                                                                  " ?r_c6 "(" ?c_candidate6 ")" crlf)
+         (printout t crlf "****** Encuentra candidado unico 6c -> " ?r_c1 "(" ?c_candidate1 "), "
+                                                                    ?r_c2 "(" ?c_candidate2 "), "
+                                                                    ?r_c3 "(" ?c_candidate3 "), "
+                                                                    ?r_c4 "(" ?c_candidate4 "), "
+                                                                    ?r_c5 "(" ?c_candidate5 "), "
+                                                                    ?r_c6 "(" ?c_candidate6 ")" crlf)
   )
   (if (> ?results 1)
     then (if (< (length $?basura1) (length $?c_r1))
